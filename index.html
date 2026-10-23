@@ -366,9 +366,9 @@ svg.toile text{font-family:var(--f-label)}
 .lire-suite{margin-top:4px}
 
 /* ---- médaillon KEMETED ---- */
-.medaillon-hero{width:clamp(120px,30vw,170px);height:auto;display:block;filter:drop-shadow(0 10px 30px rgba(0,0,0,.55))}
+.medaillon-hero{width:clamp(96px,24vw,124px);height:auto;display:block;filter:drop-shadow(0 10px 30px rgba(0,0,0,.55))}
 .partage{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:center;padding:24px;border:1px solid var(--trait);border-radius:var(--r);background:var(--nuit-2)}
-.partage img{width:clamp(220px,32vw,320px);height:auto;display:block}
+.partage img{width:clamp(200px,26vw,260px);height:auto;display:block}
 .partage p{margin:0;max-width:46ch}
 
 /* ---- lecteur de l'introduction (démarre seul, toujours arrêtable) ---- */
@@ -1009,7 +1009,7 @@ function vueAccueil(){
 
   APP.innerHTML = `
   <section class="hero">
-    <img class="medaillon-hero" src="img/medaillon.svg" alt="Médaillon KEMETED &amp; Association : le corbeau et le QR code de la Nuit Étoilée" width="170" height="170">
+    <img class="medaillon-hero" src="img/corbeau-qr.svg" alt="Le corbeau KEMETED perché sur le QR code de la Nuit Étoilée" width="120" height="182">
     <div class="label">Kemeted &amp; Association présente</div>
     <h1>Nuit Étoilée</h1>
     <div class="script">Contes du monde</div>
@@ -1117,9 +1117,9 @@ function vueAccueil(){
   <section class="bloc">
     <header><div class="label">Faire passer le mot</div><h2>Partage la Nuit Étoilée</h2></header>
     <div class="partage">
-      <img src="img/medaillon.svg" alt="Médaillon KEMETED &amp; Association avec le QR code du site" width="320" height="320" loading="lazy">
+      <img src="img/corbeau-qr.svg" alt="Le corbeau KEMETED perché sur le QR code du site" width="240" height="364" loading="lazy">
       <div style="display:grid;gap:12px">
-        <p>Fais scanner le corbeau avec l'appareil photo d'un téléphone : il ouvre directement les dix contes. Le même médaillon est gravé sur bois à l'entrée de la Salle Battant.</p>
+        <p>Fais scanner le QR code sous le corbeau avec l'appareil photo d'un téléphone : il ouvre directement les dix contes.</p>
         <p class="sourdine" style="font-family:var(--f-label);font-size:14px">kemetedassociation.github.io/nuit-etoilee</p>
       </div>
     </div>

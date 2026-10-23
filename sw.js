@@ -1,8 +1,8 @@
 // Hors ligne : la page passe toujours d'abord par le réseau (chaque visiteur reçoit la
 // dernière version), et la copie gardée ne sert que sans connexion. Les images et les
 // audios, eux, sont servis depuis la copie pour aller vite.
-const CACHE = "nuit-etoilee-v2";
-const BASE = ["./", "index.html", "manifest.json", "img/01.jpg", "img/02.jpg", "img/03.jpg", "img/04.jpg", "img/05.jpg", "img/06.jpg", "img/08.jpg", "img/09.jpg", "img/affiche.jpg", "img/icone.png"];
+const CACHE = "nuit-etoilee-v3";
+const BASE = ["./", "index.html", "manifest.json", "img/01.jpg", "img/02.jpg", "img/03.jpg", "img/04.jpg", "img/05.jpg", "img/06.jpg", "img/08.jpg", "img/09.jpg", "img/affiche.jpg", "img/corbeau-qr.svg", "img/icone.png"];
 
 self.addEventListener("install", e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE)).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(
