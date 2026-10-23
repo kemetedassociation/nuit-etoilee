@@ -244,7 +244,7 @@ svg.toile text{font-family:var(--f-label)}
 /* ---- roue des contes : anneau au repos, tambour quand on la tourne ---- */
 .roue{position:relative;height:min(78vh,680px);min-height:460px;border:1px solid var(--trait);border-radius:var(--r);overflow:hidden;user-select:none;-webkit-user-select:none;
   background:radial-gradient(ellipse at 50% 50%, rgba(80,60,120,.2), rgba(10,12,19,.65) 70%)}
-.roue-scene{position:absolute;inset:0;cursor:grab;touch-action:pan-y;outline:none}
+.roue-scene{position:absolute;inset:0;cursor:grab;touch-action:none;outline:none}
 .roue-scene:active{cursor:grabbing}
 .roue-scene:focus-visible{outline:2px solid var(--or-vif);outline-offset:-4px;border-radius:var(--r)}
 .roue-axe{position:absolute;top:50%;left:50%;transform-style:preserve-3d}
@@ -254,7 +254,8 @@ svg.toile text{font-family:var(--f-label)}
 .roue-carte img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;display:block;pointer-events:none}
 .roue-carte .action{position:absolute;right:10px;bottom:10px;font-family:var(--f-label);font-size:11px;letter-spacing:.04em;padding:4px 10px;border-radius:999px;
   background:rgba(10,12,19,.8);color:var(--or-vif);border:1px solid var(--or-doux);opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s}
-.roue-carte:hover .action,.roue-carte:focus-visible .action{opacity:1;transform:none}
+@media (hover:hover){ .roue-carte:hover .action{opacity:1;transform:none} }
+.roue-carte:focus-visible .action{opacity:1;transform:none}
 .roue-carte .fait{position:absolute;left:10px;top:10px;font-family:var(--f-titre);font-size:15px;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;
   background:var(--or);color:var(--nuit)}
 .roue-label{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-family:var(--f-script);color:var(--or);text-align:center;line-height:1}
@@ -265,15 +266,47 @@ svg.toile text{font-family:var(--f-label)}
 .roue-index button:hover{color:var(--texte)}
 .roue-index button.actif{color:var(--creme);font-weight:600}
 .roue-index .ok{color:var(--or);margin-left:6px}
-.roue-aide{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:var(--f-label);font-size:12px;letter-spacing:.04em;color:var(--sourdine);pointer-events:none}
+.roue-aide{position:absolute;left:0;right:0;bottom:14px;display:flex;align-items:center;justify-content:center;gap:10px;padding-inline:16px;text-align:left;
+  font-family:var(--f-label);font-size:13px;letter-spacing:.02em;color:var(--texte);pointer-events:none}
+.geste{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(201,164,90,.14);border:1px solid var(--or-doux);color:var(--or-vif)}
+.geste svg{width:24px;height:24px}
+.geste.croix svg{animation:croix 3.2s ease-in-out infinite}
+.geste.gauche svg{animation:gauche 1.8s ease-in-out infinite}
+.geste.bas svg{animation:bas 1.8s ease-in-out infinite}
+@keyframes croix{0%,100%{transform:translate(0,0)}12%{transform:translate(0,-9px)}25%{transform:translate(0,9px)}37%{transform:translate(0,0)}55%{transform:translate(-10px,0)}70%{transform:translate(10px,0)}85%{transform:translate(0,0)}}
+@keyframes gauche{0%{transform:translateX(10px);opacity:0}20%{opacity:1}80%{transform:translateX(-10px);opacity:1}100%{transform:translateX(-12px);opacity:0}}
+@keyframes bas{0%{transform:translateY(-8px);opacity:0}20%{opacity:1}80%{transform:translateY(8px);opacity:1}100%{transform:translateY(10px);opacity:0}}
 .roue-nav{position:absolute;left:0;right:0;bottom:12px;display:none;justify-content:center;gap:10px}
 .roue-nav button{width:52px;height:52px;border-radius:50%;border:1px solid var(--trait);background:rgba(10,12,19,.8);cursor:pointer;font-size:18px;color:var(--creme)}
 .roue.etroit .roue-index{display:none}
 .roue.etroit .roue-nav{display:flex}
-.roue.etroit .roue-aide{bottom:auto;top:14px}
+.roue.etroit .roue-aide{bottom:auto;top:12px}
 .roue.etroit .roue-titre{top:auto;bottom:66px;left:16px;right:16px;width:auto;transform:none;text-align:center;justify-items:center}
 
-/* ---- voyage : frise horizontale épinglée au défilement ---- */
+/* ---- voyage : frise horizontale. Ordinateur : épinglée au défilement. Téléphone : on la glisse au doigt ---- */
+.voyage-aide{display:none}
+.voyage-commandes{display:none}
+.voyage.glisse .voyage-panneau{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-block:10px 18px}
+.voyage.glisse .voyage-panneau::-webkit-scrollbar{display:none}
+.voyage.glisse .voyage-image,.voyage.glisse .voyage-intro,.voyage.glisse .etape{scroll-snap-align:center}
+.voyage.glisse .voyage-aide,.voyage.anime .voyage-aide{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--f-label);font-size:14px;color:var(--texte);
+  padding-inline:16px;transition:opacity .4s}
+.voyage.glisse .voyage-aide{margin-bottom:6px}
+.voyage.anime .voyage-aide{position:absolute;left:0;right:0;bottom:28px;z-index:2;pointer-events:none}
+.voyage .voyage-aide.cache{opacity:0}
+.voyage.glisse .voyage-commandes{display:flex;align-items:center;gap:14px;padding-inline:20px;margin-top:4px}
+.voyage-progres{flex:1;height:4px;border-radius:2px;background:var(--trait);overflow:hidden}
+.voyage-progres i{display:block;height:100%;width:100%;background:var(--or);transform-origin:left;transform:scaleX(0)}
+.voyage-fleche{width:52px;height:52px;flex:none;border-radius:50%;border:1px solid var(--trait);background:var(--nuit-2);color:var(--creme);font-size:20px;cursor:pointer}
+.voyage-fleche:active{background:var(--nuit-3)}
+.voyage-fleche[disabled]{opacity:.3}
+.voyage.glisse .etape .tige{transform:scaleY(0);transition:transform .5s ease}
+.voyage.glisse .etape .point{transform:scale(0);transition:transform .4s .25s cubic-bezier(.3,1.6,.5,1)}
+.voyage.glisse .etape .ligne{transform:translateY(110%);transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.voyage.glisse .etape .masque:nth-of-type(2) .ligne{transition-delay:.08s}
+.voyage.glisse .etape .masque:nth-of-type(3) .ligne{transition-delay:.16s}
+.voyage.glisse .etape .masque:nth-of-type(4) .ligne{transition-delay:.24s}
+.voyage.glisse .etape.vue .tige,.voyage.glisse .etape.vue .point,.voyage.glisse .etape.vue .ligne{transform:none}
 .voyage{width:100vw;margin-left:calc(50% - 50vw);margin-top:56px;position:relative}
 .voyage-panneau{overflow-x:auto;padding-block:20px 28px}
 .voyage.anime .voyage-panneau{height:100vh;overflow:hidden;display:flex;align-items:center;padding-block:80px 30px}
@@ -323,6 +356,28 @@ svg.toile text{font-family:var(--f-label)}
 .recit.replie{position:relative}
 .lire-suite{margin-top:4px}
 
+/* ---- médaillon KEMETED ---- */
+.medaillon-hero{width:clamp(120px,30vw,170px);height:auto;display:block;filter:drop-shadow(0 10px 30px rgba(0,0,0,.55))}
+.partage{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:center;padding:24px;border:1px solid var(--trait);border-radius:var(--r);background:var(--nuit-2)}
+.partage img{width:clamp(220px,32vw,320px);height:auto;display:block}
+.partage p{margin:0;max-width:46ch}
+
+/* ---- lecteur de l'introduction (démarre seul, toujours arrêtable) ---- */
+.intro-lecteur{position:fixed;z-index:45;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 32px));
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 10px 14px 10px;border-radius:16px;
+  background:rgba(18,21,34,.96);border:1px solid var(--or-doux);box-shadow:0 18px 40px -12px rgba(0,0,0,.8);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.intro-lecteur .rond-lecture{width:52px;height:52px;border-radius:50%;border:0;background:var(--or);color:var(--nuit);display:grid;place-items:center;cursor:pointer}
+.intro-lecteur .rond-lecture svg{width:22px;height:22px}
+.intro-lecteur.attente .rond-lecture{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(230,194,122,.55)}50%{box-shadow:0 0 0 12px rgba(230,194,122,0)}}
+.intro-lecteur .txt{display:grid;gap:2px;min-width:0}
+.intro-lecteur .txt b{font-family:var(--f-titre);font-weight:400;color:var(--creme);font-size:16px;line-height:1.2}
+.intro-lecteur .txt span{font-family:var(--f-label);font-size:12px;color:var(--sourdine)}
+.intro-lecteur .stop{width:44px;height:44px;border-radius:50%;border:1px solid var(--trait);background:transparent;cursor:pointer;font-size:20px;color:var(--texte)}
+.intro-lecteur .prog{position:absolute;left:14px;right:14px;bottom:6px;height:3px;border-radius:2px;background:var(--trait);overflow:hidden}
+.intro-lecteur .prog i{display:block;height:100%;background:var(--or);transform-origin:left;transform:scaleX(0)}
+.intro-bouton{justify-self:start}
+
 footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);text-align:center;display:grid;gap:6px;font-family:var(--f-label);font-size:13px;color:var(--sourdine)}
 
 @media (max-width:760px){
@@ -347,14 +402,18 @@ footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);t
   .emplacements,.reserve{display:grid;grid-template-columns:repeat(5,minmax(0,56px));justify-content:center;gap:8px}
   .emplacements button,.reserve button{width:100%;height:60px;font-size:28px}
   .carte-ciel .legende{justify-content:center;text-align:center}
+  .intro-lecteur{left:12px;right:12px;width:auto;bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  .partage{grid-template-columns:1fr;justify-items:center;text-align:center}
   .lettres{gap:4px;flex-wrap:nowrap;justify-content:center}
   .lettres span{width:clamp(22px,7vw,28px)}
   footer.pied{margin-top:40px}
   .intro-carte{grid-template-columns:1fr;justify-items:center;text-align:center}
 }
 @media (max-width:600px){
-  .voyage-piste{--pas:62vw;height:min(68vh,560px)}
-  .voyage-image{width:72vw}
+  .voyage-piste{--pas:62vw;height:min(64vh,520px);min-height:400px}
+  .voyage-image{width:84vw;align-self:center;height:auto}
+  .voyage-image img{height:auto;object-fit:contain}
+  .roue{height:min(66vh,560px);min-height:420px}
   .voyage-intro{width:62vw}
   .etape{width:58vw}
   .voyage-corps{width:calc(var(--pas) * 9 + 58vw)}
@@ -389,6 +448,13 @@ footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);t
   <a href="#conte-1" data-onglet="continuer" id="onglet-suite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor"/></svg>Continuer</a>
   <a href="#finale" data-onglet="finale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8L20 3M16.5 6.5l2.5 2.5M14 9l2 2"/></svg>Énigme</a>
 </nav>
+<audio id="intro-audio" preload="auto" src="audio/00-intro.mp3"></audio>
+<div class="intro-lecteur" id="intro-lecteur" hidden role="region" aria-label="Introduction de la soirée">
+  <button class="rond-lecture" id="intro-jouer" type="button" aria-label="Écouter l'introduction"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg></button>
+  <div class="txt"><b>Introduction de la soirée</b><span id="intro-etat">Touche l'écran pour lancer la voix du conteur</span></div>
+  <button class="stop" id="intro-stop" type="button" aria-label="Arrêter et fermer l'introduction">×</button>
+  <div class="prog" aria-hidden="true"><i id="intro-prog"></i></div>
+</div>
 <div class="scene" id="scene" hidden role="dialog" aria-modal="true" aria-labelledby="scene-titre"><div class="boite" id="scene-boite"></div></div>
 
 <script>
@@ -756,7 +822,7 @@ function montrerRoue(root){
     const w = scene.clientWidth, h = scene.clientHeight; if(!h) return;
     const etroit = w < 640;
     root.classList.toggle("etroit", etroit);
-    aide.textContent = etroit ? "Glisse de côté ou touche les flèches pour tourner la roue" : "Fais tourner la roue avec la molette, en glissant ou avec les flèches";
+    $("#roue-aide-t", root).textContent = etroit ? "Glisse de haut en bas ou de gauche à droite pour tourner la roue" : "Molette, glisser ou flèches pour tourner la roue";
     const cw = Math.min(h*CARTE_H*RATIO, w*(etroit?CARTE_L_MAX_ETROIT:CARTE_L_MAX)), ch = cw/RATIO;
     const rAnneau = etroit ? Math.min(w*.36, h*.34) : ch*ANNEAU;
     M = { cw, ch, rAnneau, rTambour: ch*TAMBOUR, arc: ch*ARC, echelle: borne(((2*Math.PI*rAnneau/n)*.82)/cw, .16, 1) };
@@ -810,16 +876,24 @@ function montrerRoue(root){
   };
   scene.addEventListener("wheel", molette, {passive:false});
 
-  // Souris : on tire de haut en bas. Doigt : on glisse de côté, la page garde le défilement vertical.
+  // Au doigt comme à la souris, la roue tourne dans les deux sens : de haut en bas ou de
+  // gauche à droite. Arrivée au bout, un glissement vertical fait défiler la page,
+  // pour qu'on ne reste jamais coincé dans la roue.
   let depart = null, bouge = 0;
-  scene.addEventListener("pointerdown", ev => { depart = {x:ev.clientX, y:ev.clientY, type:ev.pointerType}; bouge = 0; });
+  scene.addEventListener("pointerdown", ev => { depart = {x:ev.clientX, y:ev.clientY, type:ev.pointerType, axe:null}; bouge = 0; });
   scene.addEventListener("pointermove", ev => {
     if(!depart) return;
-    const tactile = depart.type !== "mouse";
-    if(tactile && bouge < 8 && Math.abs(ev.clientY - depart.y) > Math.abs(ev.clientX - depart.x)) return;
-    const delta = tactile ? (depart.x - ev.clientX) : (depart.y - ev.clientY);
+    const dx = depart.x - ev.clientX, dy = depart.y - ev.clientY;
+    if(!depart.axe){
+      if(Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      depart.axe = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      try{ scene.setPointerCapture(ev.pointerId); }catch(e){}
+    }
+    const delta = depart.axe === "x" ? dx : dy;
     bouge += Math.abs(delta);
-    if(bouge > 6){ if(!tactile && !scene.hasPointerCapture(ev.pointerId)) scene.setPointerCapture(ev.pointerId); vers(cible + delta / (tactile ? GLISSE*.6 : GLISSE)); }
+    const v = cible + delta / (depart.type === "mouse" ? GLISSE : GLISSE*.6);
+    if(depart.axe === "y" && ((v <= 0 && delta < 0) || (v >= dernier + 1 && delta > 0))) window.scrollBy(0, delta);
+    else vers(v);
     depart.x = ev.clientX; depart.y = ev.clientY;
   });
   const lacher = () => { if(depart && bouge > 6) poser(); depart = null; };
@@ -848,15 +922,21 @@ function montrerRoue(root){
    une frise lisible qu'on fait défiler à la main.
    --------------------------------------------------------------------- */
 function montrerVoyage(sec){
-  if(!sec || !window.gsap || !window.ScrollTrigger || matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+  if(!sec) return null;
+  if(matchMedia("(max-width: 760px), (pointer: coarse)").matches || !window.gsap || !window.ScrollTrigger) return voyageAuDoigt(sec);
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
   gsap.registerPlugin(ScrollTrigger);
   sec.classList.add("anime");
+  const aideV = $(".voyage-aide", sec);
+  $(".voyage-aide-t", sec).textContent = "Continue de défiler vers le bas : le voyage avance";
+  aideV.querySelector(".geste").className = "geste bas";
   const piste = $(".voyage-piste", sec), panneau = $(".voyage-panneau", sec);
   const distance = () => Math.max(0, piste.scrollWidth - panneau.clientWidth);
   const glisse = gsap.to(piste, { x: () => -distance(), ease: "none",
     scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + distance(), pin: true, scrub: .6, invalidateOnRefresh: true, anticipatePin: 1 } });
   const fil = gsap.fromTo($(".voyage-fil i", sec), {scaleX: 0}, { scaleX: 1, ease: "none",
-    scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + distance(), scrub: .6, invalidateOnRefresh: true } });
+    scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + distance(), scrub: .6, invalidateOnRefresh: true,
+      onUpdate: st => aideV.classList.toggle("cache", st.progress > .04) } });
   const etapes = [...sec.querySelectorAll(".etape")].map(et => gsap.timeline({
       scrollTrigger: { trigger: et, containerAnimation: glisse, start: "left 88%", end: "left 58%", scrub: true } })
     .fromTo($(".tige", et), {scaleY: 0}, {scaleY: 1, duration: .4, ease: "none"})
@@ -869,6 +949,32 @@ function montrerVoyage(sec){
     etapes.forEach(t => { t.scrollTrigger && t.scrollTrigger.kill(); t.kill(); });
     fil.scrollTrigger.kill(); fil.kill(); glisse.scrollTrigger.kill(true); glisse.kill();
   };
+}
+
+/* Téléphone et tablette : la frise se glisse au doigt, la page continue de défiler normalement. */
+function voyageAuDoigt(sec){
+  sec.classList.add("glisse");
+  const panneau = $(".voyage-panneau", sec), aide = $(".voyage-aide", sec), barre = $(".voyage-progres i", sec);
+  const [prec, suiv] = sec.querySelectorAll(".voyage-fleche");
+  const calme = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fil = $(".voyage-fil i", sec);
+  const maj = () => {
+    const max = panneau.scrollWidth - panneau.clientWidth, p = max > 0 ? panneau.scrollLeft / max : 0;
+    barre.style.transform = `scaleX(${p})`; fil.style.transform = `scaleX(${p})`;
+    prec.disabled = panneau.scrollLeft < 8; suiv.disabled = panneau.scrollLeft > max - 8;
+    if(panneau.scrollLeft > 30) aide.classList.add("cache");
+  };
+  panneau.addEventListener("scroll", maj, {passive:true});
+  sec.querySelectorAll(".voyage-fleche").forEach(b => b.onclick = () =>
+    panneau.scrollBy({left: +b.dataset.sens * panneau.clientWidth * .8, behavior: calme ? "auto" : "smooth"}));
+  let io = null;
+  if(calme || !("IntersectionObserver" in window)) sec.querySelectorAll(".etape").forEach(e => e.classList.add("vue"));
+  else {
+    io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("vue"); io.unobserve(e.target); } }), {root: panneau, threshold: .3});
+    sec.querySelectorAll(".etape").forEach(e => io.observe(e));
+  }
+  maj();
+  return () => { io && io.disconnect(); panneau.removeEventListener("scroll", maj); };
 }
 
 const APP = $("#app");
@@ -894,6 +1000,7 @@ function vueAccueil(){
 
   APP.innerHTML = `
   <section class="hero">
+    <img class="medaillon-hero" src="img/medaillon.svg" alt="Médaillon KEMETED &amp; Association : le corbeau et le QR code de la Nuit Étoilée" width="170" height="170">
     <div class="label">Kemeted &amp; Association présente</div>
     <h1>Nuit Étoilée</h1>
     <div class="script">Contes du monde</div>
@@ -922,7 +1029,7 @@ function vueAccueil(){
       <div class="lune" aria-hidden="true"></div>
       <div style="display:grid;gap:8px;width:100%;min-width:0">
         <p style="margin:0">La voix du conteur de la Nuit Étoilée, avec son fond musical, t'accueille et t'emmène sous le ciel.</p>
-        <audio controls preload="none" src="audio/00-intro.mp3"></audio>
+        <button class="btn intro-bouton" type="button" id="b-intro">Écouter l'introduction</button>
       </div>
     </div>
   </section>
@@ -953,13 +1060,14 @@ function vueAccueil(){
       <div class="roue-label">Contes<br>du monde</div>
       <div class="roue-titre" aria-live="polite"><span class="label" id="roue-k"></span><span class="t" id="roue-t"></span></div>
       <ol class="roue-index">${CONTES.map((c,i)=>`<li><button type="button" data-i="${i}">${c.num} · ${esc(c.titre)}${conteFini(c)?`<span class="ok">✦</span>`:""}</button></li>`).join("")}</ol>
-      <div class="roue-aide">Fais tourner la roue avec la molette, en glissant ou avec les flèches</div>
+      <div class="roue-aide"><span class="geste croix"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-.5V8a1.5 1.5 0 0 1 3 0v2m0-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.2a5 5 0 0 1-3.9-1.9L4.5 16a1.6 1.6 0 0 1 2.4-2.1L9 15.5"/></svg></span><span id="roue-aide-t">Molette, glisser ou flèches pour tourner la roue</span></div>
       <div class="roue-nav"><button type="button" data-d="-1" aria-label="Conte précédent">↑</button><button type="button" data-d="1" aria-label="Conte suivant">↓</button></div>
     </div>
   </section>
 
   <section class="voyage" id="voyage" aria-label="Le voyage des dix contes">
-    <div class="voyage-panneau">
+    <div class="voyage-aide" aria-hidden="true"><span class="geste gauche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-.5V8a1.5 1.5 0 0 1 3 0v2m0-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.2a5 5 0 0 1-3.9-1.9L4.5 16a1.6 1.6 0 0 1 2.4-2.1L9 15.5"/></svg></span><span class="voyage-aide-t">Glisse vers la gauche pour voyager</span></div>
+    <div class="voyage-panneau" tabindex="0" aria-label="Frise du voyage, défilement horizontal">
       <div class="voyage-piste">
         <div class="voyage-image"><img src="img/affiche.jpg" alt="Affiche des dix constellations de la Nuit Étoilée"></div>
         <div class="voyage-intro">
@@ -978,6 +1086,11 @@ function vueAccueil(){
         </div>
       </div>
     </div>
+    <div class="voyage-commandes">
+      <button type="button" class="voyage-fleche" data-sens="-1" aria-label="Revenir en arrière dans la frise">←</button>
+      <div class="voyage-progres" aria-hidden="true"><i></i></div>
+      <button type="button" class="voyage-fleche" data-sens="1" aria-label="Avancer dans la frise">→</button>
+    </div>
   </section>
 
   <section class="bloc">
@@ -990,8 +1103,20 @@ function vueAccueil(){
           <div class="txt"><span class="label">Conte ${c.num} · ${esc(c.region)}</span><h3>${esc(c.titre)}</h3><span class="sourdine" style="font-size:14px">${esc(c.sous)}</span></div>
         </a>`; }).join("")}
     </div>
+  </section>
+
+  <section class="bloc">
+    <header><div class="label">Faire passer le mot</div><h2>Partage la Nuit Étoilée</h2></header>
+    <div class="partage">
+      <img src="img/medaillon.svg" alt="Médaillon KEMETED &amp; Association avec le QR code du site" width="320" height="320" loading="lazy">
+      <div style="display:grid;gap:12px">
+        <p>Fais scanner le corbeau avec l'appareil photo d'un téléphone : il ouvre directement les dix contes. Le même médaillon est gravé sur bois à l'entrée de la Salle Battant.</p>
+        <p class="sourdine" style="font-family:var(--f-label);font-size:14px">kemetedassociation.github.io/nuit-etoilee</p>
+      </div>
+    </div>
   </section>`;
   peindreArts(APP);
+  const bi = $("#b-intro"); if(bi) bi.onclick = () => intro.jouer();
   APP.querySelectorAll(".mode").forEach(b => b.onclick = () => {
     S.mode = b.dataset.mode; sauver(); majBarre();
     APP.querySelectorAll(".mode").forEach(x => x.setAttribute("aria-pressed", x === b));
@@ -1524,7 +1649,7 @@ function majOnglets(vue){
 }
 function route(){
   if(!SCENE.hidden) fermerScene();
-  document.querySelectorAll("audio").forEach(a => a.pause());
+  document.querySelectorAll("#app audio").forEach(a => a.pause());
   const h = location.hash.replace("#","");
   const m = h.match(/^conte-(\d+)$/);
   if(m){ const c = CONTES.find(c=>c.id===+m[1]); if(c){ vueConte(c); window.scrollTo(0,0); majOnglets("conte"); return; } }
@@ -1547,6 +1672,47 @@ window.addEventListener("hashchange", route);
   addEventListener("resize", taille); taille(); requestAnimationFrame(peindre);
 })();
 
+/* L'introduction démarre dès l'arrivée sur le site (une fois par visite). Si le navigateur
+   bloque le son avant tout geste, elle part au premier toucher de l'écran. */
+const intro = (() => {
+  const a = $("#intro-audio"), boite = $("#intro-lecteur"), btn = $("#intro-jouer"), etat = $("#intro-etat"), prog = $("#intro-prog");
+  const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
+  const PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>';
+  const vu = () => { try{ return sessionStorage.getItem("ne-intro") === "1"; }catch(e){ return false; } };
+  const noter = () => { try{ sessionStorage.setItem("ne-intro", "1"); }catch(e){} };
+  const gestes = ["pointerup", "touchend", "click", "keydown"];
+  let attend = false;
+  const maj = () => {
+    const joue = !a.paused && !a.ended;
+    btn.innerHTML = joue ? PAUSE : PLAY;
+    btn.setAttribute("aria-label", joue ? "Mettre l'introduction en pause" : "Écouter l'introduction");
+    boite.classList.toggle("attente", attend && !joue);
+    const geste = matchMedia("(pointer: coarse)").matches ? "Touche l'écran" : "Clique n'importe où";
+    etat.textContent = joue ? "La voix du conteur vous accueille" : attend ? geste + " pour lancer la voix du conteur" : "En pause";
+  };
+  const auGeste = ev => {
+    if(ev.target.closest && ev.target.closest("#intro-stop")) return;
+    retirer(); jouer();
+  };
+  const retirer = () => { attend = false; gestes.forEach(g => document.removeEventListener(g, auGeste, true)); };
+  const jouer = () => {
+    boite.hidden = false; noter();
+    const p = a.play();
+    if(p && p.catch) p.then(maj).catch(() => { attend = true; gestes.forEach(g => document.addEventListener(g, auGeste, true)); maj(); });
+    maj();
+  };
+  const fermer = () => { retirer(); a.pause(); boite.hidden = true; noter(); };
+  btn.onclick = ev => { ev.stopPropagation(); retirer(); a.paused ? jouer() : (a.pause(), maj()); };
+  $("#intro-stop").onclick = ev => { ev.stopPropagation(); fermer(); };
+  a.addEventListener("play", maj); a.addEventListener("pause", maj);
+  a.addEventListener("timeupdate", () => { if(a.duration) prog.style.transform = `scaleX(${a.currentTime / a.duration})`; });
+  a.addEventListener("ended", () => { boite.hidden = true; a.currentTime = 0; });
+  // Quand un conte ou un autre son démarre, l'introduction s'efface
+  document.addEventListener("play", ev => { if(ev.target !== a && !a.paused) a.pause(); }, true);
+  return { jouer, fermer, demarrer: () => { if(!vu()) jouer(); } };
+})();
+
 majBarre();
 route();
+intro.demarrer();
 </script>
