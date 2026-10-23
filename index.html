@@ -50,6 +50,7 @@ body{
 .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
 a{color:var(--or-vif)}
 button{font:inherit;color:inherit}
+a,button,[role="button"],summary{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 :focus-visible{outline:2px solid var(--or-vif);outline-offset:3px;border-radius:6px}
 h1,h2,h3{font-family:var(--f-titre);font-weight:400;color:var(--creme);text-wrap:balance;margin:0}
 .label{font-family:var(--f-label);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--or)}
@@ -58,17 +59,17 @@ h1,h2,h3{font-family:var(--f-titre);font-weight:400;color:var(--creme);text-wrap
 /* ---- barre du haut ---- */
 .barre{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;
   padding-block:12px;margin-bottom:8px;background:linear-gradient(var(--nuit) 60%, transparent)}
-.marque{white-space:nowrap;font-family:var(--f-titre);color:var(--creme);text-decoration:none;font-size:18px;display:flex;gap:8px;align-items:baseline}
+.marque{white-space:nowrap;min-height:44px;align-items:center;font-family:var(--f-titre);color:var(--creme);text-decoration:none;font-size:18px;display:flex;gap:8px;align-items:baseline}
 .marque span{font-family:var(--f-script);color:var(--or);font-size:22px}
 .barre .esp{flex:1}
-.pastille{font-family:var(--f-label);font-size:12px;letter-spacing:.04em;border:1px solid var(--trait);background:var(--nuit-2);
-  border-radius:999px;padding:6px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.pastille{font-family:var(--f-label);font-size:13px;letter-spacing:.04em;border:1px solid var(--trait);background:var(--nuit-2);
+  border-radius:999px;padding:6px 14px;min-height:44px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
 .pastille b{color:var(--or-vif);font-weight:600}
 .pastille:hover{border-color:var(--or-doux)}
 
 /* ---- boutons ---- */
 .btn{font-family:var(--f-label);font-size:14px;font-weight:500;letter-spacing:.03em;border-radius:999px;padding:12px 22px;cursor:pointer;
-  border:1px solid var(--or);background:var(--or);color:var(--nuit);display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .15s, background .15s}
+  border:1px solid var(--or);background:var(--or);color:var(--nuit);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;text-decoration:none;transition:transform .15s, background .15s}
 .btn:hover{background:var(--or-vif)}
 .btn:active{transform:scale(.97)}
 .btn.fantome{background:transparent;color:var(--or-vif)}
@@ -147,7 +148,7 @@ svg .etoile-c:hover circle.coeur{fill:var(--or-vif)}
 .scene .boite{max-width:640px;margin:0 auto;display:grid;gap:18px}
 .scene .haut{display:flex;align-items:center;gap:12px}
 .scene .haut h2{font-size:26px;flex:1;line-height:1.2}
-.fermer{width:42px;height:42px;border-radius:50%;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:20px;flex:none}
+.fermer{width:48px;height:48px;border-radius:50%;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:20px;flex:none}
 .consigne{margin:0;color:var(--texte);font-size:16px}
 .msg{min-height:1.6em;font-family:var(--f-label);font-size:15px;text-align:center}
 .msg.ok{color:var(--ok)}.msg.ko{color:var(--ko)}
@@ -177,7 +178,7 @@ svg.toile text{font-family:var(--f-label)}
 .liste-ordre li.sel{border-color:var(--or-vif);background:var(--nuit-3)}
 .liste-ordre li.ok{border-color:var(--ok)}
 .liste-ordre .fl{display:flex;gap:4px}
-.liste-ordre .fl button{width:34px;height:34px;border-radius:8px;border:1px solid var(--trait);background:var(--nuit);cursor:pointer}
+.liste-ordre .fl button{width:44px;height:44px;font-size:18px;border-radius:8px;border:1px solid var(--trait);background:var(--nuit);cursor:pointer}
 .liste-ordre .contenu{display:flex;gap:10px;align-items:center;min-width:0}
 .liste-ordre svg{flex:none}
 
@@ -201,9 +202,9 @@ svg.toile text{font-family:var(--f-label)}
 
 /* cadenas */
 .cadenas{display:flex;justify-content:center;gap:10px}
-.roue{display:grid;gap:6px;justify-items:center}
-.roue button{width:56px;height:40px;border-radius:10px;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:16px}
-.roue output{width:56px;height:70px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--or);background:var(--nuit-3);font-family:var(--f-titre);font-size:38px;color:var(--creme);font-variant-numeric:tabular-nums}
+.chiffre{display:grid;gap:6px;justify-items:center}
+.chiffre button{width:64px;height:52px;border-radius:10px;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:18px}
+.chiffre output{width:64px;height:80px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--or);background:var(--nuit-3);font-family:var(--f-titre);font-size:38px;color:var(--creme);font-variant-numeric:tabular-nums}
 .secoue{animation:secoue .4s}
 @keyframes secoue{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
@@ -218,7 +219,7 @@ svg.toile text{font-family:var(--f-label)}
   background:linear-gradient(180deg,#05060b,#0d1020 70%,#141832);touch-action:manipulation}
 .ciel-pont .voie{position:absolute;left:-10%;right:-10%;top:30%;height:90px;transform:rotate(-8deg);
   background:radial-gradient(ellipse at center, rgba(243,234,212,.16), transparent 70%);pointer-events:none}
-.pie{position:absolute;width:64px;height:44px;border:0;background:none;padding:0;cursor:pointer;will-change:transform}
+.pie{position:absolute;width:80px;height:56px;border:0;background:none;padding:0;cursor:pointer;will-change:transform}
 .pie svg{width:100%;height:100%}
 .pont{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:10px 12px;background:rgba(10,12,19,.75);border-top:1px solid var(--trait)}
 .pont .astre{font-family:var(--f-label);font-size:12px;color:var(--or-vif);text-align:center;line-height:1.1}
@@ -275,7 +276,7 @@ svg.toile text{font-family:var(--f-label)}
 .roue-index .ok{color:var(--or);margin-left:6px}
 .roue-aide{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:var(--f-label);font-size:12px;letter-spacing:.04em;color:var(--sourdine);pointer-events:none}
 .roue-nav{position:absolute;left:0;right:0;bottom:12px;display:none;justify-content:center;gap:10px}
-.roue-nav button{width:44px;height:44px;border-radius:50%;border:1px solid var(--trait);background:rgba(10,12,19,.8);cursor:pointer;font-size:18px;color:var(--creme)}
+.roue-nav button{width:52px;height:52px;border-radius:50%;border:1px solid var(--trait);background:rgba(10,12,19,.8);cursor:pointer;font-size:18px;color:var(--creme)}
 .roue.etroit .roue-index{display:none}
 .roue.etroit .roue-nav{display:flex}
 .roue.etroit .roue-aide{bottom:auto;top:14px}
@@ -311,11 +312,53 @@ svg.toile text{font-family:var(--f-label)}
 .etape:hover .t{color:var(--or-vif)}
 .etape.fini .point{background:var(--or-vif)}
 
+/* ---- navigation au pouce (téléphone) ---- */
+.onglets{display:none}
+.saut-defis{display:none}
+.liste-contes{display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.liste-contes a{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:14px;align-items:center;min-height:88px;padding:10px 14px 10px 10px;
+  border:1px solid var(--trait);border-radius:var(--r);background:var(--nuit-2);text-decoration:none;color:inherit}
+.liste-contes a:active{background:var(--nuit-3)}
+.liste-contes .mini{width:64px;height:80px;border-radius:8px;overflow:hidden;background:var(--nuit-3)}
+.liste-contes .mini img,.liste-contes .mini canvas{width:100%;height:100%;object-fit:cover;display:block}
+.liste-contes .t{font-family:var(--f-titre);font-size:19px;color:var(--creme);line-height:1.2;display:block}
+.liste-contes .etat{font-family:var(--f-label);font-size:13px;color:var(--sourdine)}
+.liste-contes .etat b{color:var(--or-vif);font-weight:500}
+.liste-contes .fl{font-size:22px;color:var(--or)}
+.epreuve{cursor:pointer}
+.epreuve:active{background:var(--nuit-3)}
+.choix button:active,.mode:active,.vignette:active{transform:scale(.985)}
+.recit.replie p:nth-child(n+3){display:none}
+.recit.replie{position:relative}
+.lire-suite{margin-top:4px}
+
 footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);text-align:center;display:grid;gap:6px;font-family:var(--f-label);font-size:13px;color:var(--sourdine)}
 
 @media (max-width:760px){
-  .conte{grid-template-columns:1fr;gap:20px}
-  .conte .affiche{position:static;max-width:300px;margin:0 auto;width:100%}
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .onglets{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));background:rgba(10,12,19,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-top:1px solid var(--trait)}
+  .onglets a{display:grid;justify-items:center;align-content:center;gap:3px;min-height:56px;border-radius:12px;text-decoration:none;
+    font-family:var(--f-label);font-size:12px;color:var(--sourdine)}
+  .onglets a svg{width:24px;height:24px}
+  .onglets a[aria-current="page"]{color:var(--or-vif);background:rgba(201,164,90,.1)}
+  .onglets a:active{background:var(--nuit-3)}
+  .scene{z-index:60}
+  .label{font-size:12px}
+  .conte{grid-template-columns:1fr;gap:18px}
+  .conte .affiche{position:static;width:100%}
+  .conte .affiche img,.conte .affiche canvas{aspect-ratio:16/10;object-position:50% 32%;max-height:42vh}
+  .saut-defis{display:flex;width:100%;margin-bottom:20px}
+  .epreuve{grid-template-columns:auto minmax(0,1fr);padding:16px}
+  .epreuve .btn{grid-column:1 / -1;width:100%}
+  .nav-contes .btn{flex:1}
+  .emplacements,.reserve{display:grid;grid-template-columns:repeat(5,minmax(0,56px));justify-content:center;gap:8px}
+  .emplacements button,.reserve button{width:100%;height:60px;font-size:28px}
+  .carte-ciel .legende{justify-content:center;text-align:center}
+  .lettres{gap:4px;flex-wrap:nowrap;justify-content:center}
+  .lettres span{width:clamp(22px,7vw,28px)}
+  footer.pied{margin-top:40px}
   .intro-carte{grid-template-columns:1fr;justify-items:center;text-align:center}
 }
 @media (max-width:600px){
@@ -341,7 +384,7 @@ footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);t
     <a class="marque" href="#accueil">Nuit Étoilée <span>contes</span></a>
     <div class="esp"></div>
     <button class="pastille" id="b-mode" type="button" title="Changer de mode"><span class="txt">Mode</span> <b id="b-mode-nom">—</b></button>
-    <button class="pastille" id="b-son" type="button" aria-pressed="true" title="Activer ou couper les sons des jeux">Sons <b id="b-son-etat">oui</b></button>
+    <button class="pastille" id="b-son" type="button" aria-pressed="true" title="Activer ou couper les sons et vibrations des jeux">Sons <b id="b-son-etat">oui</b></button>
   </nav>
   <main id="app"></main>
   <footer class="pied">
@@ -349,6 +392,12 @@ footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);t
     <div>Sous le même ciel · Salle Battant, 48 rue Battant, 25000 Besançon</div>
   </footer>
 </div>
+<nav class="onglets" aria-label="Navigation principale">
+  <a href="#accueil" data-onglet="accueil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.6l-5.6 3.3 1.4-6.3L3 9.3l6.4-.6z"/></svg>Accueil</a>
+  <a href="#contes" data-onglet="contes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5v13c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v13.5"/></svg>Contes</a>
+  <a href="#conte-1" data-onglet="continuer" id="onglet-suite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor"/></svg>Continuer</a>
+  <a href="#finale" data-onglet="finale"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4.5"/><path d="M11.2 11.8L20 3M16.5 6.5l2.5 2.5M14 9l2 2"/></svg>Énigme</a>
+</nav>
 <div class="scene" id="scene" hidden role="dialog" aria-modal="true" aria-labelledby="scene-titre"><div class="boite" id="scene-boite"></div></div>
 
 <script>
@@ -602,6 +651,7 @@ const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replac
 let AC = null;
 function son(type){
   if(!S.son) return;
+  try{ if(navigator.vibrate){ const v = {ok:15, ko:[30,40,30], victoire:[20,60,20,60,50], boum:8}[type]; if(v) navigator.vibrate(v); } }catch(e){}
   try{
     AC = AC || new (window.AudioContext || window.webkitAudioContext)();
     const t = AC.currentTime;
@@ -844,7 +894,7 @@ function vueAccueil(){
   const astres = CONTES.map((c,i)=>{ const [x,y]=POS[i], f=conteFini(c);
     return `<a class="etoile-c" href="#conte-${c.id}" aria-label="Conte ${c.num} : ${esc(c.titre)}${f?" (terminé)":""}">
       ${f?`<circle cx="${x}" cy="${y}" r="3.2" fill="url(#halo)"/>`:""}
-      <circle cx="${x}" cy="${y}" r="5" fill="transparent"/>
+      <circle cx="${x}" cy="${y}" r="6.6" fill="transparent"/>
       <circle class="coeur" cx="${x}" cy="${y}" r="${f?1.3:.9}" fill="${f?"#e6c27a":"#f3ead4"}"/>
       <text x="${x}" y="${y+4.6}" text-anchor="middle" font-size="2.1" fill="${f?"#e6c27a":"#9a8f74"}" font-family="Poppins, sans-serif">${c.num}</text>
       ${f?`<text x="${x}" y="${y-2.6}" text-anchor="middle" font-size="2.6" fill="#f3ead4" font-family="Lora, serif">${c.lettre}</text>`:""}
@@ -977,10 +1027,11 @@ function vueConte(c){
         <span class="label">Écouter le conte</span>
         <audio controls preload="none" src="${c.audio}"></audio>
       </div>
-      <div class="recit">${c.texte.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
+      <button class="btn fantome saut-defis" type="button" id="b-saut">Aller aux défis · ${c.epreuves.filter((_,i)=>etoilesDe(c,i)>0).length} / ${c.epreuves.length} réussis ↓</button>
+      <div class="recit" id="recit">${c.texte.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
       <div class="observer"><span class="label">À observer ce soir</span>${esc(c.observer)}</div>
 
-      <section class="epreuves" aria-label="Défis du conte">
+      <section class="epreuves" id="defis" aria-label="Défis du conte">
         <div class="label">Les défis du conte</div>
         ${c.epreuves.map((e,i)=>{ const n = etoilesDe(c,i);
           return `<div class="epreuve ${n?"faite":""}">
@@ -1000,7 +1051,36 @@ function vueConte(c){
     </div>
   </article>`;
   peindreArts(APP);
-  APP.querySelectorAll("[data-ep]").forEach(b => b.onclick = () => ouvrirEpreuve(c, +b.dataset.ep));
+  APP.querySelectorAll("[data-ep]").forEach(b => b.onclick = ev => { ev.stopPropagation(); ouvrirEpreuve(c, +b.dataset.ep); });
+  // Toute la carte du défi est une cible au doigt, pas seulement le bouton
+  APP.querySelectorAll(".epreuve").forEach(carte => carte.onclick = () => carte.querySelector("[data-ep]").click());
+  $("#b-saut").onclick = () => $("#defis").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+  // Sur téléphone, le récit est replié pour garder les défis à portée de pouce
+  const recit = $("#recit");
+  if(innerWidth <= 760 && c.texte.length > 2){
+    recit.classList.add("replie");
+    const b = document.createElement("button"); b.type = "button"; b.className = "btn fantome lire-suite"; b.textContent = "Lire tout le conte";
+    b.setAttribute("aria-expanded", "false");
+    b.onclick = () => { recit.classList.remove("replie"); b.remove(); };
+    recit.after(b);
+  }
+}
+
+function vueListe(){
+  viderVue();
+  APP.innerHTML = `
+  <section class="bloc" style="margin-top:12px">
+    <header><div class="label">${CONTES.filter(conteFini).length} / 10 réussis · ${totalEtoiles()} étoiles</div><h1 style="font-size:clamp(32px,7vw,44px)">Les dix contes</h1></header>
+    <ol class="liste-contes">
+      ${CONTES.map(c => { const n = c.epreuves.filter((_,i)=>etoilesDe(c,i)>0).length, f = conteFini(c);
+        return `<li><a href="#conte-${c.id}">
+          <span class="mini">${visuel(c)}</span>
+          <span style="min-width:0;display:grid;gap:3px"><span class="label">Conte ${c.num} · ${esc(c.region)}</span><span class="t">${esc(c.titre)}</span>
+            <span class="etat">${f?`Terminé · lettre <b>${c.lettre}</b>`:n?`<b>${n} / ${c.epreuves.length}</b> défis réussis`:`${c.epreuves.length} défis à relever`}</span></span>
+          <span class="fl" aria-hidden="true">›</span></a></li>`; }).join("")}
+    </ol>
+  </section>`;
+  peindreArts(APP);
 }
 
 /* =====================================================================
@@ -1008,18 +1088,23 @@ function vueConte(c){
    ===================================================================== */
 const SCENE = $("#scene"), BOITE = $("#scene-boite");
 let nettoyage = null;
-function fermerScene(){ if(nettoyage){ nettoyage(); nettoyage = null; } SCENE.hidden = true; document.body.style.overflow = ""; }
-document.addEventListener("keydown", e => { if(e.key==="Escape" && !SCENE.hidden) fermerScene(); });
+let sceneHist = false;
+function fermerScene(){ if(nettoyage){ nettoyage(); nettoyage = null; } SCENE.hidden = true; document.body.style.overflow = ""; sceneHist = false; }
+// Le bouton « retour » du téléphone ferme le jeu au lieu de quitter la page
+function quitterScene(){ if(sceneHist) history.back(); else { fermerScene(); route(); } }
+addEventListener("popstate", () => { if(!SCENE.hidden){ fermerScene(); route(); } });
+document.addEventListener("keydown", e => { if(e.key==="Escape" && !SCENE.hidden) quitterScene(); });
 
 function ouvrirEpreuve(c, i){
   const e = c.epreuves[i];
   SCENE.hidden = false; document.body.style.overflow = "hidden"; SCENE.scrollTop = 0;
+  if(!sceneHist){ try{ history.pushState({scene:true}, ""); sceneHist = true; }catch(e){} }
   BOITE.innerHTML = `
     <div class="haut"><div style="flex:1;min-width:0"><div class="label">Conte ${c.num} · défi ${i+1} / ${c.epreuves.length}</div><h2 id="scene-titre">${esc(e.titre)}</h2></div>
       <button class="fermer" type="button" aria-label="Fermer">×</button></div>
     ${e.consigne?`<p class="consigne">${esc(e.consigne)}</p>`:""}
     <div id="jeu"></div>`;
-  $(".fermer", BOITE).onclick = () => { fermerScene(); route(); };
+  $(".fermer", BOITE).onclick = quitterScene;
   const fini = err => {
     if(nettoyage){ nettoyage(); nettoyage = null; }
     const n = noteDe(err), avant = conteFini(c);
@@ -1039,7 +1124,8 @@ function ouvrirEpreuve(c, i){
         ${lettre?`<a class="btn fantome" href="#${premierAFaire()}" id="b-autre">${toutFini()?"Énigme finale":"Conte suivant"}</a>`:""}
       </div></div>`;
     const bs = $("#b-suite", BOITE); if(bs) bs.onclick = () => ouvrirEpreuve(c, suivante);
-    $("#b-retour", BOITE).onclick = () => { fermerScene(); route(); };
+    $("#b-retour", BOITE).onclick = quitterScene;
+    SCENE.scrollTop = 0;
     const ba = $("#b-autre", BOITE); if(ba) ba.onclick = () => fermerScene();
   };
   JEUX[e.type]($("#jeu", BOITE), e, fini);
@@ -1071,7 +1157,8 @@ JEUX.quiz = (el, e, fini) => {
         $("#explic", el).textContent = q.e;
         $("#suite", el).innerHTML = `<button class="btn" type="button">${k<qs.length-1?"Question suivante":"Terminer"}</button>`;
         $("#suite button", el).onclick = () => { k++; k<qs.length ? poser() : fini(err); };
-        $("#suite button", el).focus();
+        $("#suite button", el).focus({preventScroll:true});
+        $("#suite", el).scrollIntoView({block:"nearest", behavior:"smooth"});
       } else { b.classList.add("ko"); err++; son("ko"); $("#explic", el).textContent = "Pas tout à fait… essaie une autre réponse."; }
     });
   };
@@ -1121,13 +1208,13 @@ JEUX.invisible = (el, e, fini) => {
 
 JEUX.cadenas = (el, e, fini) => {
   const n = e.code.length, v = Array(n).fill(0); let err = 0;
-  el.innerHTML = `<div class="cadenas" id="cad">${v.map((_,i)=>`<div class="roue">
+  el.innerHTML = `<div class="cadenas" id="cad">${v.map((_,i)=>`<div class="chiffre">
       <button type="button" data-i="${i}" data-d="1" aria-label="Chiffre ${i+1} plus">▲</button>
       <output id="r${i}">0</output>
       <button type="button" data-i="${i}" data-d="-1" aria-label="Chiffre ${i+1} moins">▼</button></div>`).join("")}</div>
     <div class="msg" id="msg"></div>
     <div class="rangee" style="justify-content:center"><button class="btn" type="button" id="ouvrir">Ouvrir</button><button class="btn fantome" type="button" id="ind">Un indice</button></div>`;
-  el.querySelectorAll(".roue button").forEach(b => b.onclick = () => { const i=+b.dataset.i; v[i]=(v[i]+ +b.dataset.d+10)%10; $("#r"+i, el).textContent=v[i]; son("tic"); });
+  el.querySelectorAll(".chiffre button").forEach(b => b.onclick = () => { const i=+b.dataset.i; v[i]=(v[i]+ +b.dataset.d+10)%10; $("#r"+i, el).textContent=v[i]; son("tic"); });
   $("#ind", el).onclick = () => { const m=$("#msg", el); m.className="msg"; m.textContent = e.indice; };
   $("#ouvrir", el).onclick = () => {
     if(v.join("") === e.code){ son("ok"); $("#msg", el).className="msg ok"; $("#msg", el).textContent="Clic ! Le cadenas s'ouvre."; setTimeout(()=>fini(err), 900); }
@@ -1224,12 +1311,14 @@ JEUX.constellation = (el, e, fini) => {
   const sv = $("#sv", el);
   if(guide) $("#g-guide", sv).innerHTML = e.traits.map(([a,b])=>{ const A=e.etoiles[a], B=e.etoiles[b];
     return `<line x1="${A[1]}" y1="${A[2]}" x2="${B[1]}" y2="${B[2]}" stroke="rgba(243,234,212,.22)" stroke-width=".4" stroke-dasharray="1.2 1.4"/>`; }).join("");
+  // Zone tactile de chaque étoile : la plus large possible sans empiéter sur sa voisine
+  const zone = e.etoiles.map(([,x,y],i) => Math.min(7.5, .5*Math.min(...e.etoiles.filter((_,j)=>j!==i).map(([,x2,y2])=>Math.hypot(x-x2,y-y2)))));
   const rendu = () => {
     $("#g-traits", sv).innerHTML = [...faits].map(k=>{ const [a,b]=k.split("-").map(Number), A=e.etoiles[a], B=e.etoiles[b];
       return `<line x1="${A[1]}" y1="${A[2]}" x2="${B[1]}" y2="${B[2]}" stroke="#c9a45a" stroke-width=".7" stroke-linecap="round"/>`; }).join("");
     $("#g-etoiles", sv).innerHTML = e.etoiles.map(([nom,x,y],i)=>{ const lie = [...faits].some(k=>k.split("-").includes(String(i)));
       return `<g data-i="${i}" style="cursor:pointer" role="button" aria-label="${esc(nom)}" tabindex="0">
-        <circle cx="${x}" cy="${y}" r="6" fill="transparent"/>
+        <circle cx="${x}" cy="${y}" r="${zone[i].toFixed(2)}" fill="transparent"/>
         ${i===sel?`<circle cx="${x}" cy="${y}" r="3.4" fill="none" stroke="#e6c27a" stroke-width=".5"/>`:""}
         <circle cx="${x}" cy="${y}" r="${lie||i===sel?1.9:1.5}" fill="${lie||i===sel?"#e6c27a":"#f3ead4"}"/>
         ${guide||lie?`<text x="${x}" y="${y+5.2}" text-anchor="middle" font-size="3" fill="${lie?"#e6c27a":"#9a8f74"}">${esc(nom)}</text>`:""}</g>`; }).join("");
@@ -1434,14 +1523,23 @@ function majBarre(){
 $("#b-mode").onclick = () => { S.mode = expert() ? "etoile" : "astronome"; sauver(); majBarre(); route(); };
 $("#b-son").onclick = () => { S.son = !S.son; sauver(); majBarre(); };
 
+function majOnglets(vue){
+  const suite = premierAFaire();
+  $("#onglet-suite").href = "#" + suite;
+  document.querySelectorAll(".onglets a").forEach(a => {
+    const actif = a.dataset.onglet === vue || (vue === "conte" && a.dataset.onglet === "contes");
+    if(actif) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+}
 function route(){
   if(!SCENE.hidden) fermerScene();
   document.querySelectorAll("audio").forEach(a => a.pause());
   const h = location.hash.replace("#","");
   const m = h.match(/^conte-(\d+)$/);
-  if(m){ const c = CONTES.find(c=>c.id===+m[1]); if(c){ vueConte(c); window.scrollTo(0,0); return; } }
-  if(h === "finale"){ vueFinale(); window.scrollTo(0,0); return; }
-  vueAccueil();
+  if(m){ const c = CONTES.find(c=>c.id===+m[1]); if(c){ vueConte(c); window.scrollTo(0,0); majOnglets("conte"); return; } }
+  if(h === "finale"){ vueFinale(); window.scrollTo(0,0); majOnglets("finale"); return; }
+  if(h === "contes"){ vueListe(); window.scrollTo(0,0); majOnglets("contes"); return; }
+  vueAccueil(); majOnglets("accueil");
   if(h === "" || h === "accueil") window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", route);
