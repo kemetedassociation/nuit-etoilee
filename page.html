@@ -1,0 +1,1454 @@
+<title>Nuit Étoilée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&family=Poppins:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+/* Layout : un ciel de nuit continu. Accueil = carte du ciel où chaque conte est une étoile ;
+   conte = page de livret (affiche, audio, récit) ; épreuves = scène plein écran par-dessus. */
+:root{
+  --nuit:#0a0c13;        /* fond */
+  --nuit-2:#121522;      /* surfaces */
+  --nuit-3:#1b1f31;      /* surfaces actives */
+  --or:#c9a45a;          /* accent (identité des livrets KEMETED) */
+  --or-vif:#e6c27a;
+  --or-doux:rgba(201,164,90,.28);
+  --creme:#f3ead4;       /* titres */
+  --texte:#ddd4bd;       /* courant */
+  --sourdine:#9a8f74;    /* légendes */
+  --trait:rgba(243,234,212,.12);
+  --ok:#8fc7a0;
+  --ko:#e0846f;
+  --f-titre:"Lora", Georgia, "Times New Roman", serif;
+  --f-script:"Pinyon Script", "Lora", Georgia, cursive;
+  --f-label:"Poppins", "Helvetica Neue", Arial, sans-serif;
+  --r:14px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--nuit);color:var(--texte)}
+body{overflow-x:clip}
+body{
+  font-family:var(--f-titre);font-size:17px;line-height:1.65;min-height:100%;
+  background:
+    radial-gradient(1200px 700px at 80% -10%, rgba(80,60,120,.22), transparent 60%),
+    radial-gradient(900px 600px at 0% 110%, rgba(201,164,90,.08), transparent 60%),
+    var(--nuit);
+  background-attachment:fixed;
+}
+#ciel-fond{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding-inline:20px;padding-block:0 80px}
+a{color:var(--or-vif)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--or-vif);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-titre);font-weight:400;color:var(--creme);text-wrap:balance;margin:0}
+.label{font-family:var(--f-label);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--or)}
+.sourdine{color:var(--sourdine)}
+
+/* ---- barre du haut ---- */
+.barre{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;
+  padding-block:12px;margin-bottom:8px;background:linear-gradient(var(--nuit) 60%, transparent)}
+.marque{white-space:nowrap;font-family:var(--f-titre);color:var(--creme);text-decoration:none;font-size:18px;display:flex;gap:8px;align-items:baseline}
+.marque span{font-family:var(--f-script);color:var(--or);font-size:22px}
+.barre .esp{flex:1}
+.pastille{font-family:var(--f-label);font-size:12px;letter-spacing:.04em;border:1px solid var(--trait);background:var(--nuit-2);
+  border-radius:999px;padding:6px 12px;cursor:pointer;display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.pastille b{color:var(--or-vif);font-weight:600}
+.pastille:hover{border-color:var(--or-doux)}
+
+/* ---- boutons ---- */
+.btn{font-family:var(--f-label);font-size:14px;font-weight:500;letter-spacing:.03em;border-radius:999px;padding:12px 22px;cursor:pointer;
+  border:1px solid var(--or);background:var(--or);color:var(--nuit);display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:transform .15s, background .15s}
+.btn:hover{background:var(--or-vif)}
+.btn:active{transform:scale(.97)}
+.btn.fantome{background:transparent;color:var(--or-vif)}
+.btn.fantome:hover{background:var(--or-doux)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.rangee{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* ---- accueil ---- */
+.hero{text-align:center;padding-block:28px 10px;display:grid;gap:14px;justify-items:center}
+.hero h1{font-size:clamp(44px,9vw,76px);line-height:1;letter-spacing:.01em}
+.hero .script{font-family:var(--f-script);color:var(--or);font-size:clamp(40px,8vw,64px);line-height:1;margin-top:-6px}
+.hero p{max-width:58ch;margin:0;color:var(--texte)}
+.sep{display:flex;gap:18px;color:var(--or);font-size:14px;justify-content:center}
+
+.carte-ciel{margin-block:20px 8px;border:1px solid var(--trait);border-radius:var(--r);background:rgba(10,12,19,.55);overflow:hidden}
+.carte-ciel svg{display:block;width:100%;height:auto}
+.carte-ciel .legende{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;padding:12px 16px;border-top:1px solid var(--trait);font-family:var(--f-label);font-size:13px}
+.lettres{display:flex;gap:6px;flex-wrap:wrap}
+.lettres span{width:26px;height:32px;display:grid;place-items:center;border:1px solid var(--trait);border-radius:6px;font-family:var(--f-titre);color:var(--sourdine)}
+.lettres span.ok{border-color:var(--or);color:var(--or-vif);background:rgba(201,164,90,.1)}
+svg .etoile-c{cursor:pointer}
+svg .etoile-c:hover circle.coeur{fill:var(--or-vif)}
+
+.bloc{display:grid;gap:14px;margin-top:40px}
+.bloc>header{display:grid;gap:4px}
+.bloc h2{font-size:30px}
+.intro-carte{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:18px;border:1px solid var(--trait);border-radius:var(--r);background:var(--nuit-2)}
+.intro-carte audio{width:100%}
+.intro-carte .lune{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 35%, #fff6dc, #c9a45a 60%, #6b5428);box-shadow:0 0 40px rgba(230,194,122,.35)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.mode{cursor:pointer;text-align:left;padding:18px;border-radius:var(--r);border:1px solid var(--trait);background:var(--nuit-2);display:grid;gap:4px}
+.mode h3{font-size:22px}
+.mode p{margin:0;font-size:15px;color:var(--sourdine)}
+.mode[aria-pressed="true"]{border-color:var(--or);background:linear-gradient(160deg, rgba(201,164,90,.16), var(--nuit-2))}
+.mode[aria-pressed="true"] h3::after{content:"  ✓";color:var(--or-vif);font-size:18px}
+
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.vignette{position:relative;display:grid;text-decoration:none;color:inherit;border-radius:var(--r);overflow:hidden;border:1px solid var(--trait);background:var(--nuit-2);transition:transform .2s,border-color .2s}
+.vignette:hover{transform:translateY(-3px);border-color:var(--or-doux)}
+.vignette .vis{aspect-ratio:4/3;overflow:hidden;position:relative;background:var(--nuit-3)}
+.vignette .vis img,.vignette .vis canvas{width:100%;height:100%;object-fit:cover;object-position:50% 38%;display:block}
+.vignette .txt{padding:12px 14px 14px;display:grid;gap:3px;min-width:0}
+.vignette h3{font-size:19px;line-height:1.25}
+.vignette .etat{position:absolute;top:10px;right:10px;font-family:var(--f-label);font-size:11px;background:rgba(10,12,19,.8);border:1px solid var(--trait);border-radius:999px;padding:3px 9px}
+.vignette .etat.fini{border-color:var(--or);color:var(--or-vif)}
+.mini-etoiles{font-size:13px;letter-spacing:2px;color:var(--or)}
+
+/* ---- page conte ---- */
+.conte{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:36px;align-items:start;margin-top:10px}
+.conte .affiche{position:sticky;top:76px;display:grid;gap:12px}
+.conte .affiche img,.conte .affiche canvas{width:100%;border-radius:var(--r);border:1px solid var(--trait);display:block;aspect-ratio:2/3;object-fit:cover}
+.tete{display:grid;gap:8px;margin-bottom:18px}
+.tete h1{font-size:clamp(34px,6vw,50px);line-height:1.1}
+.tete .sous{font-family:var(--f-label);color:var(--sourdine);font-size:14px;letter-spacing:.06em}
+.lecteur{display:grid;gap:8px;padding:14px 16px;border:1px solid var(--trait);border-radius:var(--r);background:var(--nuit-2);margin-bottom:22px}
+.lecteur audio{width:100%}
+.recit{max-width:65ch}
+.recit p{margin:0 0 1em;text-indent:1.2em}
+.recit p:first-child{text-indent:0}
+.recit p:first-child::first-letter{font-family:var(--f-script);color:var(--or);font-size:3.4em;float:left;line-height:.9;padding:6px 10px 0 0}
+.observer{border-top:1px solid var(--trait);padding-top:14px;margin-top:10px;font-family:var(--f-label);font-size:14px;color:var(--sourdine);max-width:65ch}
+.observer .label{display:block;margin-bottom:4px}
+.epreuves{display:grid;gap:10px;margin-block:30px 10px}
+.epreuve{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--trait);border-radius:var(--r);background:var(--nuit-2)}
+.epreuve .rond{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--or-doux);font-family:var(--f-label);font-size:14px;color:var(--or-vif)}
+.epreuve.faite .rond{background:var(--or);color:var(--nuit);border-color:var(--or)}
+.epreuve h3{font-size:19px}
+.epreuve p{margin:0;font-size:14px;color:var(--sourdine);font-family:var(--f-label)}
+.recompense{display:flex;gap:14px;align-items:center;padding:16px;border-radius:var(--r);border:1px dashed var(--or-doux);font-family:var(--f-label);font-size:14px}
+.recompense .grande-lettre{font-family:var(--f-titre);font-size:40px;color:var(--or-vif);width:56px;height:64px;display:grid;place-items:center;border:1px solid var(--or);border-radius:10px;background:rgba(201,164,90,.08);flex:none}
+.nav-contes{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+
+/* ---- scène des épreuves ---- */
+.scene{position:fixed;inset:0;z-index:50;background:rgba(6,7,12,.94);backdrop-filter:blur(6px);overflow-y:auto;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 30px)}
+.scene .boite{max-width:640px;margin:0 auto;display:grid;gap:18px}
+.scene .haut{display:flex;align-items:center;gap:12px}
+.scene .haut h2{font-size:26px;flex:1;line-height:1.2}
+.fermer{width:42px;height:42px;border-radius:50%;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:20px;flex:none}
+.consigne{margin:0;color:var(--texte);font-size:16px}
+.msg{min-height:1.6em;font-family:var(--f-label);font-size:15px;text-align:center}
+.msg.ok{color:var(--ok)}.msg.ko{color:var(--ko)}
+.compteur{font-family:var(--f-label);font-size:13px;color:var(--sourdine);font-variant-numeric:tabular-nums}
+
+/* quiz */
+.q{display:grid;gap:12px}
+.q h3{font-size:22px;line-height:1.35}
+.choix{display:grid;gap:10px}
+.choix button{text-align:left;padding:14px 16px;border-radius:12px;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-family:var(--f-titre);font-size:17px}
+.choix button:hover{border-color:var(--or-doux)}
+.choix button.ok{border-color:var(--ok);background:rgba(143,199,160,.12)}
+.choix button.ko{border-color:var(--ko);background:rgba(224,132,111,.1);opacity:.75}
+.explic{font-size:15px;color:var(--sourdine);margin:0}
+.points{display:flex;gap:6px}
+.points i{width:28px;height:4px;border-radius:2px;background:var(--trait)}
+.points i.f{background:var(--or)}
+
+/* canevas / svg de jeu */
+.toile{width:100%;max-width:560px;margin:0 auto;display:block;border-radius:var(--r);border:1px solid var(--trait);background:#05060b;touch-action:manipulation}
+svg.toile text{font-family:var(--f-label)}
+
+/* ordre */
+.liste-ordre{display:grid;gap:8px;list-style:none;margin:0;padding:0}
+.liste-ordre li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:16px;line-height:1.35}
+.liste-ordre li .n{font-family:var(--f-label);font-size:13px;color:var(--or)}
+.liste-ordre li.sel{border-color:var(--or-vif);background:var(--nuit-3)}
+.liste-ordre li.ok{border-color:var(--ok)}
+.liste-ordre .fl{display:flex;gap:4px}
+.liste-ordre .fl button{width:34px;height:34px;border-radius:8px;border:1px solid var(--trait);background:var(--nuit);cursor:pointer}
+.liste-ordre .contenu{display:flex;gap:10px;align-items:center;min-width:0}
+.liste-ordre svg{flex:none}
+
+/* memory */
+.memo{display:grid;gap:8px;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr))}
+.carte-m{aspect-ratio:3/4;border-radius:10px;border:1px solid var(--trait);cursor:pointer;perspective:600px;background:none;padding:0}
+.carte-m .in{display:block;position:relative;width:100%;height:100%;transition:transform .35s;transform-style:preserve-3d}
+.carte-m.vue .in,.carte-m.trouvee .in{transform:rotateY(180deg)}
+.carte-m .f,.carte-m .d{position:absolute;inset:0;backface-visibility:hidden;border-radius:10px;display:grid;place-items:center;padding:6px;text-align:center}
+.carte-m .f{background:radial-gradient(circle at 50% 40%, var(--nuit-3), var(--nuit-2));color:var(--or);font-size:24px}
+.carte-m .d{transform:rotateY(180deg);background:var(--nuit-3);font-size:clamp(12px,3.4vw,16px);line-height:1.2;color:var(--creme)}
+.carte-m .d.nom{font-family:var(--f-titre);font-size:clamp(14px,3.8vw,19px);color:var(--or-vif)}
+.carte-m.trouvee .d{background:rgba(201,164,90,.14);outline:1px solid var(--or)}
+
+/* puzzle */
+.puzzle{display:grid;width:100%;max-width:380px;margin:0 auto;aspect-ratio:2/3;gap:2px;border-radius:10px;overflow:hidden;background:var(--trait)}
+.puzzle button{border:0;padding:0;cursor:pointer;background-repeat:no-repeat;outline-offset:-3px}
+.puzzle button.sel{outline:3px solid var(--or-vif)}
+.puzzle.fini{gap:0}
+.modele{max-width:120px;border-radius:8px;border:1px solid var(--trait)}
+
+/* cadenas */
+.cadenas{display:flex;justify-content:center;gap:10px}
+.roue{display:grid;gap:6px;justify-items:center}
+.roue button{width:56px;height:40px;border-radius:10px;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-size:16px}
+.roue output{width:56px;height:70px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--or);background:var(--nuit-3);font-family:var(--f-titre);font-size:38px;color:var(--creme);font-variant-numeric:tabular-nums}
+.secoue{animation:secoue .4s}
+@keyframes secoue{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+/* énigme */
+.devinette{font-family:var(--f-titre);font-style:italic;font-size:21px;line-height:1.5;color:var(--creme);border-left:2px solid var(--or);padding-left:16px;margin:0}
+.saisie{display:flex;gap:8px;flex-wrap:wrap}
+.saisie input{flex:1;min-width:0;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;border:1px solid var(--trait);background:var(--nuit-2);color:var(--creme)}
+.saisie input:focus{border-color:var(--or)}
+
+/* pont des pies */
+.ciel-pont{position:relative;height:340px;border-radius:var(--r);border:1px solid var(--trait);overflow:hidden;
+  background:linear-gradient(180deg,#05060b,#0d1020 70%,#141832);touch-action:manipulation}
+.ciel-pont .voie{position:absolute;left:-10%;right:-10%;top:30%;height:90px;transform:rotate(-8deg);
+  background:radial-gradient(ellipse at center, rgba(243,234,212,.16), transparent 70%);pointer-events:none}
+.pie{position:absolute;width:64px;height:44px;border:0;background:none;padding:0;cursor:pointer;will-change:transform}
+.pie svg{width:100%;height:100%}
+.pont{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:10px 12px;background:rgba(10,12,19,.75);border-top:1px solid var(--trait)}
+.pont .astre{font-family:var(--f-label);font-size:12px;color:var(--or-vif);text-align:center;line-height:1.1}
+.pont .astre::before{content:"✦";display:block;font-size:20px}
+.pont .places{display:flex;gap:3px;flex:1;justify-content:center}
+.pont .places i{width:30px;height:20px;border-bottom:2px dashed var(--trait)}
+.pont .places i.p{border-bottom-color:var(--or)}
+.pont .places i.p svg{width:30px;height:20px}
+
+/* tambour */
+.frappe{width:100%;padding:22px;border-radius:var(--r);font-size:20px;justify-content:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.jauge{height:10px;border-radius:5px;background:var(--trait);overflow:hidden}
+.jauge i{display:block;height:100%;background:linear-gradient(90deg,var(--or),var(--ko));width:0}
+
+/* résultat */
+.resultat{text-align:center;display:grid;gap:12px;justify-items:center;padding:20px 0}
+.resultat .etoiles-gagnees{font-size:44px;letter-spacing:8px;color:var(--or-vif)}
+.resultat .etoiles-gagnees .v{color:var(--trait)}
+
+/* finale */
+.emplacements,.reserve{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.emplacements button,.reserve button{width:clamp(30px,8vw,46px);height:clamp(40px,10vw,56px);border-radius:8px;border:1px solid var(--trait);background:var(--nuit-2);cursor:pointer;font-family:var(--f-titre);font-size:clamp(20px,5vw,28px);color:var(--creme)}
+.emplacements button{border-color:var(--or-doux);border-style:dashed}
+.emplacements button.plein{border-style:solid;border-color:var(--or);color:var(--or-vif)}
+.reserve button[disabled]{opacity:.15}
+.diplome{border:1px solid var(--or);border-radius:var(--r);padding:28px 20px;text-align:center;display:grid;gap:10px;justify-items:center;
+  background:radial-gradient(circle at 50% 0%, rgba(201,164,90,.18), var(--nuit-2) 70%)}
+.diplome .mot{font-family:var(--f-titre);font-size:clamp(32px,8vw,54px);letter-spacing:.18em;color:var(--or-vif)}
+.diplome .code{font-family:var(--f-label);font-size:22px;letter-spacing:.2em;color:var(--creme);border:1px dashed var(--or);border-radius:10px;padding:8px 16px}
+
+/* ---- roue des contes : anneau au repos, tambour quand on la tourne ---- */
+.roue{position:relative;height:min(78vh,680px);min-height:460px;border:1px solid var(--trait);border-radius:var(--r);overflow:hidden;user-select:none;-webkit-user-select:none;
+  background:radial-gradient(ellipse at 50% 50%, rgba(80,60,120,.2), rgba(10,12,19,.65) 70%)}
+.roue-scene{position:absolute;inset:0;cursor:grab;touch-action:pan-y;outline:none}
+.roue-scene:active{cursor:grabbing}
+.roue-scene:focus-visible{outline:2px solid var(--or-vif);outline-offset:-4px;border-radius:var(--r)}
+.roue-axe{position:absolute;top:50%;left:50%;transform-style:preserve-3d}
+.roue-carte{position:absolute;display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;text-decoration:none;color:inherit}
+.roue-carte .face{position:relative;display:block;width:100%;height:100%;border-radius:10px;overflow:hidden;background:var(--nuit-3);
+  box-shadow:0 18px 40px -18px rgba(0,0,0,.9);outline:1px solid var(--trait)}
+.roue-carte img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;display:block;pointer-events:none}
+.roue-carte .action{position:absolute;right:10px;bottom:10px;font-family:var(--f-label);font-size:11px;letter-spacing:.04em;padding:4px 10px;border-radius:999px;
+  background:rgba(10,12,19,.8);color:var(--or-vif);border:1px solid var(--or-doux);opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s}
+.roue-carte:hover .action,.roue-carte:focus-visible .action{opacity:1;transform:none}
+.roue-carte .fait{position:absolute;left:10px;top:10px;font-family:var(--f-titre);font-size:15px;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;
+  background:var(--or);color:var(--nuit)}
+.roue-label{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-family:var(--f-script);color:var(--or);text-align:center;line-height:1}
+.roue-titre{position:absolute;top:50%;left:5%;width:25%;transform:translateY(-50%);pointer-events:none;opacity:0;display:grid;gap:8px}
+.roue-titre .t{font-family:var(--f-titre);color:var(--creme);line-height:1.12;text-wrap:balance}
+.roue-index{position:absolute;top:6%;right:2.5%;white-space:nowrap;opacity:0;pointer-events:none;list-style:none;margin:0;padding:0;text-align:right;font-family:var(--f-label);font-size:12px;line-height:2}
+.roue-index button{background:none;border:0;padding:0;color:var(--sourdine);cursor:pointer;font:inherit}
+.roue-index button:hover{color:var(--texte)}
+.roue-index button.actif{color:var(--creme);font-weight:600}
+.roue-index .ok{color:var(--or);margin-left:6px}
+.roue-aide{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-family:var(--f-label);font-size:12px;letter-spacing:.04em;color:var(--sourdine);pointer-events:none}
+.roue-nav{position:absolute;left:0;right:0;bottom:12px;display:none;justify-content:center;gap:10px}
+.roue-nav button{width:44px;height:44px;border-radius:50%;border:1px solid var(--trait);background:rgba(10,12,19,.8);cursor:pointer;font-size:18px;color:var(--creme)}
+.roue.etroit .roue-index{display:none}
+.roue.etroit .roue-nav{display:flex}
+.roue.etroit .roue-aide{bottom:auto;top:14px}
+.roue.etroit .roue-titre{top:auto;bottom:66px;left:16px;right:16px;width:auto;transform:none;text-align:center;justify-items:center}
+
+/* ---- voyage : frise horizontale épinglée au défilement ---- */
+.voyage{width:100vw;margin-left:calc(50% - 50vw);margin-top:56px;position:relative}
+.voyage-panneau{overflow-x:auto;padding-block:20px 28px}
+.voyage.anime .voyage-panneau{height:100vh;overflow:hidden;display:flex;align-items:center;padding-block:80px 30px}
+.voyage-piste{--pas:clamp(220px,19vw,290px);display:flex;align-items:stretch;gap:clamp(28px,4vw,64px);padding-inline:max(20px,5vw);height:min(62vh,540px);min-height:420px;width:max-content}
+.voyage-image{flex:none;width:clamp(240px,28vw,420px);border-radius:var(--r);overflow:hidden;border:1px solid var(--trait)}
+.voyage-image img{width:100%;height:100%;object-fit:cover;display:block}
+.voyage-intro{flex:none;width:clamp(200px,20vw,280px);display:flex;flex-direction:column;justify-content:space-between;padding-block:6px}
+.voyage-intro h2{font-size:clamp(32px,3.4vw,46px);line-height:1.02}
+.voyage-intro p{margin:0;font-size:15px;color:var(--sourdine)}
+.voyage-corps{position:relative;flex:none;width:calc(var(--pas) * 9 + 300px)}
+.voyage-fil{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--trait)}
+.voyage-fil i{position:absolute;inset:0;background:var(--or);transform-origin:left center}
+.etape{position:absolute;width:300px;height:50%;left:calc(var(--i) * var(--pas));text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;padding-left:20px}
+.etape.haut{top:0}
+.etape.bas{top:50%;justify-content:flex-end}
+.etape .tige{position:absolute;left:0;width:1px;background:var(--or);height:calc(100% - 6px)}
+.etape.haut .tige{bottom:0;transform-origin:bottom}
+.etape.bas .tige{top:0;transform-origin:top}
+.etape .point{position:absolute;left:-5px;width:11px;height:11px;border-radius:50%;background:var(--or);box-shadow:0 0 14px rgba(230,194,122,.7)}
+.etape.haut .point{top:-2px}
+.etape.bas .point{bottom:-2px}
+.etape .masque{display:block;overflow:hidden}
+.etape .ligne{display:block}
+.etape .t{font-family:var(--f-titre);color:var(--creme);font-size:clamp(20px,1.8vw,26px);line-height:1.15;max-width:260px}
+.etape .d{font-size:15px;line-height:1.45;color:var(--sourdine);max-width:250px}
+.etape .lien{font-family:var(--f-label);font-size:12px;color:var(--or-vif)}
+.etape:hover .t{color:var(--or-vif)}
+.etape.fini .point{background:var(--or-vif)}
+
+footer.pied{margin-top:60px;padding-top:20px;border-top:1px solid var(--trait);text-align:center;display:grid;gap:6px;font-family:var(--f-label);font-size:13px;color:var(--sourdine)}
+
+@media (max-width:760px){
+  .conte{grid-template-columns:1fr;gap:20px}
+  .conte .affiche{position:static;max-width:300px;margin:0 auto;width:100%}
+  .intro-carte{grid-template-columns:1fr;justify-items:center;text-align:center}
+}
+@media (max-width:600px){
+  .voyage-piste{--pas:62vw;height:min(68vh,560px)}
+  .voyage-image{width:72vw}
+  .voyage-intro{width:62vw}
+  .etape{width:58vw}
+  .voyage-corps{width:calc(var(--pas) * 9 + 58vw)}
+}
+@media (max-width:440px){
+  body{font-size:16px}
+  .wrap{padding-inline:16px}
+  .barre .pastille .txt,.marque span{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+
+<canvas id="ciel-fond" aria-hidden="true"></canvas>
+<div class="wrap">
+  <nav class="barre">
+    <a class="marque" href="#accueil">Nuit Étoilée <span>contes</span></a>
+    <div class="esp"></div>
+    <button class="pastille" id="b-mode" type="button" title="Changer de mode"><span class="txt">Mode</span> <b id="b-mode-nom">—</b></button>
+    <button class="pastille" id="b-son" type="button" aria-pressed="true" title="Activer ou couper les sons des jeux">Sons <b id="b-son-etat">oui</b></button>
+  </nav>
+  <main id="app"></main>
+  <footer class="pied">
+    <div class="label">Kemeted &amp; Association</div>
+    <div>Sous le même ciel · Salle Battant, 48 rue Battant, 25000 Besançon</div>
+  </footer>
+</div>
+<div class="scene" id="scene" hidden role="dialog" aria-modal="true" aria-labelledby="scene-titre"><div class="boite" id="scene-boite"></div></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   CONTENU — les dix contes (texte du livret « Contes du monde »)
+   ===================================================================== */
+const MOT_FINAL = "ASTRONOMIE";
+const CONTES = [
+{
+  id:1, num:"I", region:"Mali", titre:"Le secret de Sigui", sous:"Sirius et l'étoile invisible des Dogons",
+  audio:"audio/01-sigui.mp3", img:"img/01.jpg", lettre:"O",
+  texte:[
+`Sur les hautes falaises de Bandiagara, quand le soleil se couche derrière les baobabs et que la roche rouge devient presque noire, les vieillards du pays dogon rassemblent les enfants du village autour d'un feu qui ne raconte jamais tout à fait la même histoire deux fois.`,
+`Ce soir-là, c'est le vieux Amma qui parle, celui que l'on dit né sous une éclipse. Il pointe du doigt un endroit du ciel où rien, en apparence, ne brille. « Regardez bien, dit-il aux enfants serrés contre lui, là, juste à côté de Sigui Tolo, l'étoile la plus vive du ciel. Vous ne voyez rien ? C'est normal. Personne ne l'a jamais vue. Et pourtant elle est là, minuscule, plus lourde que toute la terre que vous foulez, et elle tourne, tourne, sans jamais se montrer. »`,
+`Un enfant, sceptique, demande comment on peut croire à une étoile que personne n'a vue. Le vieil homme sourit, comme s'il attendait cette question depuis toujours. « Nos ancêtres l'ont apprise autrement que par les yeux, dit-il. Ils l'ont apprise par le silence, par l'écoute du ciel, par la patience de compter les saisons. Cinquante années, pas une de plus, pas une de moins : voilà le temps qu'il faut à cette étoile cachée pour accomplir un tour complet autour de sa sœur brillante. C'est pour cela que tous les cinquante ans, nous célébrons le grand Sigui, et que nous transmettons à votre génération ce que la nôtre a reçu de la précédente. »`,
+`Bien des années plus tard, des hommes vinrent de l'autre côté des mers, avec des instruments de verre et de métal capables de voir plus loin que l'œil humain. Ils écoutèrent les Dogons parler de cette étoile invisible et compagne de Sirius, et ils rirent d'abord, poliment, comme on rit d'une légende. Puis ils pointèrent leurs télescopes vers le ciel, ajustèrent leurs lentilles, calculèrent leurs chiffres pendant de longues nuits — et ils trouvèrent l'étoile, exactement là où les Dogons l'avaient toujours dite : une naine si dense qu'une cuillère de sa matière aurait pesé plus qu'un village entier.`,
+`Les savants repartirent troublés, incapables d'expliquer comment un peuple sans télescope avait pu connaître un secret que leurs propres instruments venaient à peine de percer. Le vieil Amma, quand on lui rapporta un jour cette histoire, ne parut pas surpris. « Ce qui est invisible, dit-il simplement, n'est pas forcément absent. Il suffit parfois d'écouter plus longtemps que les autres. »`],
+  observer:"Sirius, l'étoile la plus brillante du ciel nocturne, visible en début de soirée à l'est-sud-est en automne.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Combien d'années met l'étoile cachée pour faire le tour de Sirius ?", r:["50 ans","10 ans","100 ans"], e:"Cinquante ans : c'est pour cela que la grande fête du Sigui revient tous les cinquante ans."},
+      {q:"Comment les Dogons appellent-ils Sirius ?", r:["Sigui Tolo","Amma","Bandiagara"], e:"Sigui Tolo, « l'étoile la plus vive du ciel »."},
+      {q:"Selon le vieil Amma, comment les ancêtres ont-ils connu l'étoile invisible ?", r:["Par le silence et l'écoute du ciel","Avec une longue-vue","Dans un livre venu de loin"], e:"« Ils l'ont apprise par le silence, par l'écoute du ciel, par la patience. »"},
+      {q:"Qu'ont trouvé les savants au bout de leurs télescopes ?", r:["Une étoile naine extrêmement dense","Une planète géante","Une comète"], e:"Sirius B est une naine blanche : une cuillère de sa matière pèserait plusieurs tonnes.", expert:true}]},
+    {type:"invisible", titre:"L'étoile qu'on ne voit pas", consigne:"L'étoile cachée tourne près de Sirius, l'étoile qui brille au centre. Touche le ciel pour la chercher : plus tu es près, plus le son monte et plus la lueur chauffe."},
+    {type:"cadenas", titre:"Le coffre des anciens", consigne:"Les anciens ont fermé le coffre du Sigui avec un code : le nombre d'années que met l'étoile cachée pour faire un tour complet.", code:"50", indice:"Relis le troisième paragraphe du conte : « pas une de plus, pas une de moins »."}
+  ]
+},
+{
+  id:2, num:"II", region:"Sahel", titre:"Le chemin de lait", sous:"La Voie lactée chez les peuples peuls",
+  audio:"audio/02-chemin-de-lait.mp3", img:"img/02.jpg", lettre:"M",
+  texte:[
+`Amadou avait douze ans la première fois qu'on le laissa garder seul le troupeau, une nuit entière, sous un ciel du Sahel si chargé d'étoiles qu'on aurait dit du sel renversé sur un tissu noir. Sa grand-mère, avant de rentrer sous la tente, s'était arrêtée un instant et avait levé le menton vers le ciel.`,
+`« Tu vois cette longue traînée pâle, là-haut, qui traverse toute la voûte ? » lui demanda-t-elle. Amadou hocha la tête : il l'avait toujours vue, sans jamais y prêter attention. « On l'appelle le chemin de lait, dit-elle en s'asseyant près de lui. On raconte que c'est la route qu'empruntent les âmes de nos ancêtres pour rejoindre le monde d'en haut. Et l'on dit aussi qu'une nuit, il y a bien longtemps, les vaches du ciel, immenses et généreuses, ont renversé leur lait en traversant cette route à la hâte — et que la trace n'a jamais séché depuis. »`,
+`Le garçon regarda longuement cette bande laiteuse, essayant d'imaginer des vaches assez grandes pour marcher sur le toit du monde. « Et les troupeaux qu'on entend au loin, la nuit, sans jamais les voir ? demanda-t-il. Ce sont eux aussi ? » Sa grand-mère sourit, satisfaite de la question. « Certains disent que des bergers invisibles mènent encore leurs bêtes le long de ce chemin, et que lorsqu'il brille avec une force particulière, c'est un signe : la saison des pluies sera généreuse. Regarde-le bien cette nuit. S'il est clair, dis-le-moi demain matin. »`,
+`Amadou resta éveillé bien plus longtemps qu'à l'accoutumée, fixant la bande pâle jusqu'à ce que ses yeux piquent de fatigue. Il crut, à un moment, voir une ombre plus dense se déplacer le long du chemin — un troupeau céleste, peut-être, ou simplement le sommeil qui commençait à brouiller sa vue. Au matin, il rapporta fidèlement que le chemin avait brillé fort, toute la nuit, sans faiblir. Sa grand-mère hocha la tête, satisfaite, et partit préparer le mil en murmurant que l'année serait bonne.`,
+`Ce n'est que bien plus tard, en menant à son tour ses propres bêtes sous d'autres cieux, qu'Amadou comprit ce que sa grand-mère avait voulu lui transmettre cette nuit-là : bien avant les cartes, les calendriers et les almanachs, ce fleuve d'étoiles avait déjà tout dit à qui savait le regarder — la direction à suivre, la saison à venir, et le chemin qu'emprunteraient un jour leurs propres âmes.`],
+  observer:"La Voie lactée est mieux visible loin des lumières de la ville ; en intérieur, la projection immersive en recrée l'éclat pour la soirée.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Quel âge a Amadou la première nuit où il garde seul le troupeau ?", r:["12 ans","8 ans","16 ans"], e:"Il a douze ans."},
+      {q:"D'après la légende, qui a renversé le lait dans le ciel ?", r:["Les vaches du ciel","Des chèvres affamées","Un berger maladroit"], e:"Les vaches du ciel, « immenses et généreuses », en traversant la route à la hâte."},
+      {q:"Quand le chemin brille très fort, qu'annonce-t-il ?", r:["Une saison des pluies généreuse","Une tempête de sable","Un hiver très froid"], e:"Un chemin bien clair promet de bonnes pluies, et donc une bonne année."},
+      {q:"Pour les Peuls, qui emprunte ce chemin pour rejoindre le monde d'en haut ?", r:["Les âmes des ancêtres","Les oiseaux migrateurs","Les caravanes de sel"], e:"C'est la route des âmes des ancêtres.", expert:true}]},
+    {type:"ordre", titre:"La nuit d'Amadou", consigne:"Les souvenirs d'Amadou se sont mélangés. Remets la nuit dans l'ordre : touche deux lignes pour les échanger, ou utilise les flèches.", items:[
+      "La grand-mère montre la longue traînée pâle dans le ciel",
+      "Elle raconte le lait renversé par les vaches du ciel",
+      "Amadou veille et croit voir passer un troupeau céleste",
+      "Au matin, il annonce que le chemin a brillé toute la nuit",
+      "La grand-mère part préparer le mil : l'année sera bonne",
+      "Devenu berger, Amadou comprend enfin la leçon"]},
+    {type:"enigme", titre:"La devinette du berger", question:"Je traverse tout le ciel sans jamais bouger. On dit que des vaches m'ont renversé, et les âmes des ancêtres marchent sur moi. Qui suis-je ?", reponses:["voie lactee","chemin de lait","chemin du lait","la voie lactee","le chemin de lait"], indice:"Les astronomes m'appellent aussi « Voie… »", solution:"La Voie lactée (le chemin de lait)."}
+  ]
+},
+{
+  id:3, num:"III", region:"Maghreb & Moyen-Orient", titre:"Les noms donnés aux étoiles", sous:"Les caravaniers du désert et l'astronomie arabe",
+  audio:"audio/03-caravane.mp3", img:"img/03.jpg", lettre:"A",
+  texte:[
+`Le vieux Slimane guidait les caravanes depuis plus de quarante ans, et l'on disait de lui qu'il connaissait le désert mieux que sa propre maison. Cette nuit-là pourtant, une tempête de sable soudaine avait effacé toutes les traces, dispersé les repères, et laissé le jeune Yacine, son apprenti, complètement perdu au milieu des dunes, séparé du reste de la caravane.`,
+`« Maître Slimane n'est plus là pour me guider, pensa-t-il, le cœur battant. Je vais mourir de soif avant l'aube. » Mais alors que le vent tombait enfin et que le ciel se dégageait, Yacine se souvint des paroles que Slimane répétait chaque soir en pointant du doigt les étoiles une à une, comme on récite une prière. « Celle-ci, disait-il, c'est Aldébaran, l'œil rouge du Taureau. Elle se lève toujours au même endroit, hiver comme été. Et celle-là, c'est Bételgeuse, l'épaule du grand chasseur. Si tu la gardes derrière ton épaule droite en marchant la nuit, tu iras vers l'oasis. »`,
+`Yacine leva les yeux, chercha fébrilement dans le ciel immense, et finit par reconnaître la lueur rougeâtre qu'on lui avait apprise. Il plaça l'étoile derrière son épaule droite, exactement comme Slimane le lui avait enseigné mille fois sans qu'il y prête vraiment attention, et se mit à marcher, une dune après l'autre, jusqu'à ce que l'aube révèle enfin les palmiers de l'oasis, et avec eux, le reste de la caravane inquiète qui l'attendait.`,
+`Quand il raconta son épreuve à Slimane, le vieil homme hocha la tête sans grande surprise. « Ce que je t'ai appris, dit-il, des savants l'ont écrit dans de grands livres il y a mille ans, à Bagdad et à Cordoue, quand ils dessinaient le ciel avec plus de précision que quiconque avant eux. Mais nous, les gens du désert, nous n'avions pas besoin de leurs livres : le ciel lui-même était notre carte, et nous n'avions qu'à apprendre à la lire. »`,
+`Il désigna à nouveau les étoiles, une à une, comme il l'avait toujours fait. « Chacun de ces noms que tu as appris ce soir — Aldébaran, Bételgeuse, et tant d'autres — des voyageurs les prononcent encore aujourd'hui, bien après nous, dans des langues que ni toi ni moi ne parlerons jamais. Ils ne sauront peut-être jamais qu'un jeune homme perdu dans le désert leur doit la vie. Mais le ciel, lui, s'en souvient. »`],
+  observer:"Cherchez Aldébaran, l'œil rougeoyant de la constellation du Taureau, visible en soirée à l'automne.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Comment s'appelle l'apprenti perdu dans les dunes ?", r:["Yacine","Slimane","Amadou"], e:"Yacine, l'apprenti du vieux guide Slimane."},
+      {q:"Quelle étoile est « l'œil rouge du Taureau » ?", r:["Aldébaran","Bételgeuse","Sirius"], e:"Aldébaran, qui se lève toujours au même endroit."},
+      {q:"Où Yacine doit-il garder Bételgeuse pour aller vers l'oasis ?", r:["Derrière son épaule droite","Droit devant lui","Au-dessus de sa tête"], e:"Derrière l'épaule droite, comme Slimane le lui avait appris mille fois."},
+      {q:"Dans quelles villes les savants dessinaient-ils le ciel il y a mille ans ?", r:["Bagdad et Cordoue","Rome et Athènes","Tombouctou et Fès"], e:"Bagdad et Cordoue, grands foyers de l'astronomie arabe.", expert:true}]},
+    {type:"memory", titre:"Le carnet de Slimane", consigne:"Beaucoup d'étoiles portent encore un nom arabe. Retourne les cartes et associe chaque étoile à ce que veut dire son nom.", paires:[
+      ["Aldébaran","Celle qui suit (les Pléiades)"],["Bételgeuse","La main (ou l'épaule) du géant"],["Rigel","Le pied"],["Deneb","La queue (du Cygne)"],["Altaïr","L'aigle qui vole"],["Véga","L'aigle qui plonge"]]}
+  ]
+},
+{
+  id:4, num:"IV", region:"Grèce antique", titre:"Le chasseur et le scorpion", sous:"La légende d'Orion",
+  audio:"audio/04-orion.mp3", img:"img/04.jpg", lettre:"S",
+  texte:[
+`On disait d'Orion, fils de Poséidon, qu'aucun gibier n'avait jamais échappé à sa lance, et qu'il pouvait marcher sur la mer sans même mouiller ses sandales. Une nuit, ivre de son succès, il se dressa devant ses compagnons de chasse, le torse couvert de trophées, et proclama d'une voix qui porta jusqu'aux nuages : « Il n'existe pas une bête sur cette terre que je ne puisse abattre. Pas une seule. Je les traquerai toutes, jusqu'à la dernière, dussé-je y consacrer ma vie entière. »`,
+`Ce serment insensé parvint aux oreilles de Gaïa, la Terre elle-même, mère de toutes les créatures vivantes. Elle qui avait vu naître chaque bête, chaque insecte, chaque être rampant ou volant, ne put tolérer une telle menace contre ses enfants. « Tu te crois plus fort que la vie elle-même, murmura-t-elle dans l'obscurité de la nuit. Je vais t'apprendre l'humilité. »`,
+`De la terre fendue surgit alors une créature minuscule, noire et luisante, armée d'un dard que nul antidote ne pouvait contrer : le premier scorpion. Pendant qu'Orion dormait, encore ivre de gloire, la petite bête grimpa silencieusement le long de sa cheville et le piqua. Le grand chasseur, qui n'avait jamais craint aucune bête à cornes ou à crocs, s'effondra en quelques instants, terrassé par un adversaire pas plus grand qu'un doigt.`,
+`Les dieux de l'Olympe, témoins de cette chute, furent partagés entre l'admiration pour le chasseur et l'effroi devant son orgueil. Ils décidèrent de placer Orion parmi les étoiles, pour que son destin serve de leçon aux générations à venir — mais ils y placèrent aussi le scorpion, en un endroit précis du ciel : exactement à l'opposé du chasseur.`,
+`Ainsi, encore aujourd'hui, quand le Scorpion se lève à l'horizon oriental, Orion, effrayé, disparaît aussitôt sous l'horizon occidental. Jamais, en aucune saison, les deux constellations ne se rencontrent dans le ciel. On raconte que le grand chasseur, malgré toute sa force, n'a toujours pas trouvé le courage d'affronter à nouveau celui qui l'a vaincu — et que leur duel silencieux se poursuit, nuit après nuit, depuis la nuit des temps.`],
+  observer:"Orion et sa célèbre ceinture de trois étoiles se lèvent en fin de soirée à l'automne, à l'est.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"De quel dieu Orion est-il le fils ?", r:["Poséidon","Zeus","Hadès"], e:"Fils de Poséidon, il pouvait marcher sur la mer."},
+      {q:"Qui fait surgir le scorpion ?", r:["Gaïa, la Terre","Athéna","Les compagnons d'Orion"], e:"Gaïa, mère de toutes les créatures, veut lui apprendre l'humilité."},
+      {q:"Pourquoi Orion et le Scorpion ne se croisent-ils jamais dans le ciel ?", r:["Ils sont placés à l'opposé l'un de l'autre","Le Scorpion dort la nuit","Orion se cache derrière la Lune"], e:"Quand le Scorpion se lève à l'est, Orion disparaît à l'ouest."},
+      {q:"Combien d'étoiles forment la ceinture d'Orion ?", r:["3","2","5"], e:"Alnitak, Alnilam et Mintaka.", expert:true}]},
+    {type:"constellation", titre:"Redessine le chasseur", consigne:"Les dieux ont placé Orion dans le ciel. Relie les étoiles deux par deux pour tracer sa silhouette : touche une étoile, puis celle à laquelle elle se rattache.",
+      etoiles:[["Meïssa",50,12],["Bételgeuse",28,26],["Bellatrix",70,29],["Alnitak",42,56],["Alnilam",50,53],["Mintaka",58,50],["Saïph",34,86],["Rigel",73,83]],
+      traits:[[0,1],[0,2],[1,3],[2,5],[3,4],[4,5],[3,6],[5,7]], fin:"Bételgeuse, l'épaule rouge, et Rigel, le pied bleu : tu as retrouvé Orion."}
+  ]
+},
+{
+  id:5, num:"V", region:"Chine", titre:"La tisserande et le bouvier", sous:"Véga, Altaïr et la Voie lactée",
+  audio:"audio/05-tisserande.mp3", img:"img/05.jpg", lettre:"I",
+  texte:[
+`Zhinü était la plus habile tisserande du royaume céleste, fille de l'Empereur de Jade lui-même. Chaque jour, assise à son métier au-dessus des nuages, elle tissait les couleurs du couchant et les broderies de l'aurore. Lassée pourtant de cette existence parfaite mais solitaire, elle descendit un jour sur terre se baigner dans une rivière avec ses sœurs.`,
+`C'est là que Niulang, un jeune bouvier pauvre mais au cœur pur, la vit pour la première fois et en tomba éperdument amoureux. Sur les conseils de son vieux buffle, qui parlait, dit-on, quand personne d'autre n'écoutait, il déroba les vêtements célestes de Zhinü pendant qu'elle se baignait, l'empêchant ainsi de remonter au ciel. Loin d'en vouloir au jeune homme, la tisserande, touchée par sa sincérité, accepta de rester avec lui et de devenir son épouse.`,
+`Ils vécurent heureux plusieurs années, eurent deux enfants, et Zhinü, éprise de sa nouvelle vie terrestre, cessa peu à peu de tisser les nuages du ciel. Mais l'Impératrice du Ciel, sa mère, s'aperçut un jour que les couchers de soleil avaient perdu leurs couleurs et que les nuages, sans tisserande pour les façonner, flottaient tristement gris. Furieuse, elle descendit elle-même sur terre et ramena sa fille de force au royaume céleste, ignorant les larmes de Niulang qui tentait de la retenir.`,
+`Le jeune bouvier, désespéré, chargea ses deux enfants dans des paniers suspendus à une palanche et se mit à courir vers le ciel pour rattraper son épouse. Alors qu'il n'était plus qu'à quelques pas d'elle, l'Impératrice, furieuse de cette poursuite, retira une épingle de ses cheveux et traça d'un geste un trait immense dans le ciel : un fleuve se forma aussitôt entre les deux amants, un fleuve d'étoiles que l'on nomme aujourd'hui la Voie lactée.`,
+`Émue malgré elle par tant de chagrin, l'Impératrice consentit finalement à une chose : une fois par an, le septième jour du septième mois lunaire, les amants pourraient se retrouver. Ce jour-là, toutes les pies du monde s'envolent vers le ciel et forment de leurs ailes déployées un pont au-dessus du fleuve céleste, permettant à Zhinü et Niulang de se retrouver, le temps d'une seule nuit, avant de se séparer à nouveau pour une année entière. Depuis, Zhinü brille dans le ciel sous le nom de l'étoile Véga, et Niulang sous celui d'Altaïr.`],
+  observer:"Véga et Altaïr, deux des étoiles les plus brillantes de l'été, séparées par la bande claire de la Voie lactée.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Quel est le talent de Zhinü ?", r:["Elle tisse les nuages et les couleurs du ciel","Elle chante pour les étoiles","Elle garde les buffles"], e:"Elle tisse les couleurs du couchant et les broderies de l'aurore."},
+      {q:"Qui conseille le jeune bouvier Niulang ?", r:["Son vieux buffle, qui parle","Une pie","L'Empereur de Jade"], e:"Son vieux buffle, qui parlait quand personne d'autre n'écoutait."},
+      {q:"Avec quoi l'Impératrice trace-t-elle le fleuve d'étoiles ?", r:["Une épingle de ses cheveux","Un pinceau","Son éventail"], e:"D'un geste avec son épingle, elle crée la Voie lactée."},
+      {q:"Sous quel nom d'étoile brille Niulang ?", r:["Altaïr","Véga","Deneb"], e:"Niulang est Altaïr, Zhinü est Véga.", expert:true}]},
+    {type:"pont", titre:"Le pont des pies", consigne:"C'est le septième jour du septième mois ! Attrape 7 pies en les touchant pour construire le pont entre Véga et Altaïr avant la fin du temps."},
+    {type:"cadenas", titre:"La date des retrouvailles", consigne:"La porte du royaume céleste s'ouvre avec la date des retrouvailles : le jour, puis le mois.", code:"77", indice:"« Le septième jour du septième mois lunaire »."}
+  ]
+},
+{
+  id:6, num:"VI", region:"Australie", titre:"Les ombres du fleuve céleste", sous:"L'Émeu dans le ciel des peuples aborigènes",
+  audio:"audio/06-emeu.mp3", img:"img/06.jpg", lettre:"T",
+  texte:[
+`Dans le désert rouge de l'Australie centrale, quand la nuit tombe et que le sable garde encore la chaleur du jour, les anciens rassemblent les plus jeunes et leur apprennent à regarder le ciel autrement que les étrangers venus d'ailleurs. « Ils cherchent des dessins faits de points brillants reliés entre eux, explique une grand-mère à sa petite-fille allongée près d'elle. Nous, nous cherchons aussi dans l'obscurité, entre les étoiles. »`,
+`La petite fille plisse les yeux, cherchant à comprendre. « Regarde bien, là, le long de cette grande traînée pâle que les étrangers appellent la Voie lactée. Tu vois ces zones plus sombres, comme des trous dans la lumière ? » Après un long moment, l'enfant hoche la tête, émerveillée : les taches sombres, mises bout à bout, dessinent bel et bien une forme reconnaissable — une longue silhouette, un cou courbé, un corps allongé.`,
+`« C'est l'Émeu céleste, dit la grand-mère. Sa tête, là, près de la Croix du Sud, ses ailes repliées, ses longues pattes qui s'étirent presque jusqu'à l'horizon. Il n'est pas toujours pareil : selon la saison, il se lève différemment, il se penche, il se recroqueville, tout comme un émeu vivant le ferait sur cette terre. » « Et à quoi ça sert de le connaître ? » demande la petite fille, pratique.`,
+`« À bien plus qu'à s'émerveiller, répond la grand-mère avec un sourire. Quand l'Émeu céleste se couche d'une certaine façon, cela signifie que les émeus de la terre s'apprêtent à pondre leurs œufs. Nos ancêtres l'observaient chaque année pour savoir quand partir à leur recherche. Sur certains rochers sacrés, on peut encore voir des gravures très anciennes représentant cette forme, alignées avec une précision qui n'est pas due au hasard. »`,
+`La petite fille reste silencieuse un long moment, fixant les vides entre les étoiles avec un regard neuf. « Alors le noir, dans le ciel, ce n'est pas juste rien ? » « Rien n'est jamais tout à fait rien, répond doucement la grand-mère. Chaque peuple regarde le même ciel avec les yeux que sa terre lui a donnés. Et parfois, ce sont les silences entre les étoiles qui ont le plus de choses à raconter. »`],
+  observer:"La Croix du Sud n'est pas visible depuis l'hémisphère nord ; la projection immersive permettra d'en découvrir la silhouette et celle de l'Émeu céleste.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Où les anciens cherchent-ils des formes dans le ciel ?", r:["Dans les zones sombres, entre les étoiles","Seulement dans les étoiles les plus brillantes","Dans les nuages"], e:"« Nous cherchons aussi dans l'obscurité, entre les étoiles. »"},
+      {q:"Près de quelle constellation se trouve la tête de l'Émeu ?", r:["La Croix du Sud","Orion","La Grande Ourse"], e:"Sa tête est près de la Croix du Sud."},
+      {q:"Qu'annonce la position de l'Émeu céleste ?", r:["Le moment où les émeus pondent leurs œufs","L'arrivée des pluies","Une éclipse"], e:"Les ancêtres savaient ainsi quand partir chercher les œufs."},
+      {q:"Peut-on voir la Croix du Sud depuis Besançon ?", r:["Non, seulement depuis l'hémisphère sud","Oui, chaque nuit d'été","Oui, au-dessus de l'étoile polaire"], e:"Elle reste sous notre horizon : c'est la projection qui la montre ce soir.", expert:true}]},
+    {type:"puzzle", titre:"Les morceaux du ciel", consigne:"L'image de l'Émeu céleste s'est brisée. Touche deux morceaux pour les échanger, jusqu'à reconstituer l'affiche.", img:"img/06.jpg"}
+  ]
+},
+{
+  id:7, num:"VII", region:"Égypte ancienne", titre:"Le corps étoilé de Nout", sous:"La déesse du ciel qui avale le soleil chaque soir",
+  audio:"audio/07-nout.mp3", img:null, art:"nout", lettre:"R",
+  texte:[
+`Au commencement du monde, disaient les prêtres de l'Égypte ancienne, Nout et Geb s'aimaient d'un amour si absolu qu'ils restaient enlacés jour et nuit, elle le ciel, lui la terre, sans jamais se séparer. Mais leur père, Shou, dieu de l'air, redoutait qu'un tel enlacement n'empêche à jamais le monde de respirer et de vivre entre eux. « Il faut que je vous sépare, dit-il un jour, le cœur lourd, sinon rien ne pourra jamais exister entre vous. »`,
+`Il se glissa entre les deux amants et, de toute la force de ses bras, souleva Nout loin au-dessus de Geb, l'arquant comme un pont immense au-dessus de la terre, les mains posées à un horizon, les pieds à l'autre. Ainsi naquit le ciel tel qu'on le connaît, le corps de Nout constellé d'étoiles innombrables, veillant pour toujours sur son époux resté en contrebas, inconsolable.`,
+`Chaque soir pourtant, Nout trouvait un moyen de retrouver, à sa façon, la compagnie qu'on lui avait arrachée : elle avalait le disque doré de Rê, le dieu-soleil, qui traversait alors tout son corps étoilé durant la nuit entière, affrontant dans l'obscurité les forces du chaos. Au petit matin, dans un ultime effort, Nout donnait naissance à Rê à l'horizon oriental, rougissant le ciel de la douleur et de la joie mêlées de cet accouchement quotidien.`,
+`« Comment peux-tu avaler chaque soir celui qui donne vie au monde ? » lui demandaient parfois les autres divinités, troublées par ce cycle qui semblait cruel. « Je ne le dévore pas, répondait Nout. Je le porte. Et ce que l'on porte avec assez d'amour finit toujours par renaître. »`,
+`Les étoiles elles-mêmes, disait-on, étaient les innombrables enfants de cette déesse du ciel. Certaines, proches du pôle et jamais englouties par l'horizon, furent choisies pour accueillir les âmes des pharaons défunts, seules dignes de régner éternellement aux côtés des dieux. Aujourd'hui encore, sur les plafonds de temples millénaires, on retrouve Nout peinte de tout son long, continuant inlassablement de veiller sur les vivants comme sur les morts.`],
+  observer:"Les étoiles proches de l'horizon nord tournent sans jamais se coucher — ce sont elles que les Égyptiens considéraient comme éternelles.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Qui est Nout ?", r:["La déesse du ciel","La déesse du Nil","La déesse de la terre"], e:"Nout est le ciel ; son époux Geb est la terre."},
+      {q:"Qui sépare Nout et Geb ?", r:["Shou, le dieu de l'air","Rê, le soleil","Les prêtres"], e:"Shou soulève Nout pour que le monde puisse respirer."},
+      {q:"Que fait Nout chaque soir ?", r:["Elle avale le soleil Rê","Elle allume les étoiles une à une","Elle descend dormir sur la terre"], e:"Elle avale Rê et le porte toute la nuit."},
+      {q:"Quelles étoiles accueillaient les âmes des pharaons ?", r:["Celles proches du pôle, qui ne se couchent jamais","Les étoiles filantes","Les étoiles les plus rouges"], e:"Les étoiles circumpolaires, jamais englouties par l'horizon.", expert:true}]},
+    {type:"ordre", titre:"Le voyage de Rê", consigne:"Remets dans l'ordre le voyage du soleil, du soir jusqu'au matin.", items:[
+      "Rê, le soleil, descend vers l'horizon du soir",
+      "Nout avale le disque doré",
+      "Rê traverse le corps étoilé de la déesse",
+      "Dans l'obscurité, il affronte les forces du chaos",
+      "Nout lui redonne naissance à l'horizon de l'est",
+      "Le ciel rougit : c'est l'aube"]},
+    {type:"enigme", titre:"La question des dieux", question:"Chaque soir, on m'avale. Toute la nuit, on me porte. Chaque matin, je renais à l'est. Qui suis-je ?", reponses:["soleil","le soleil","re","ra","rê","le dieu soleil","dieu soleil"], indice:"Les Égyptiens m'appelaient Rê.", solution:"Le soleil, Rê."}
+  ]
+},
+{
+  id:8, num:"VIII", region:"Scandinavie", titre:"La poursuite éternelle", sous:"Les loups qui chassent le soleil et la lune",
+  audio:"audio/08-loups.mp3", img:"img/08.jpg", lettre:"E",
+  texte:[
+`Aux confins du monde, dans la forêt de fer où nulle lumière ne pénètre vraiment, vivait une géante nommée Angrboda qui mit au monde deux louveteaux si voraces que même les dieux les redoutèrent dès leur naissance. On les nomma Sköll, « celui qui trahit », et Hati, « celui qui hait » — et on les bannit aux deux extrémités du ciel, l'un chargé de poursuivre le char du soleil, l'autre celui de la lune, pour l'éternité.`,
+`Chaque jour depuis lors, Sól, la belle conductrice du char solaire, sent dans son dos le souffle brûlant de Sköll qui ne faiblit jamais. Chaque nuit, son frère Máni, sur son char d'argent, entend derrière lui les crocs de Hati qui claquent, toujours plus proches. « Pourquoi courent-ils sans jamais s'arrêter ? » demandaient les enfants scandinaves à leurs aînés, blottis près du feu durant les longues nuits d'hiver.`,
+`« Parce qu'ils savent, répondaient les anciens, que le jour où l'un des loups faiblira ne serait-ce qu'un instant, il se fera dévorer par sa propre proie transformée en chasseur. Alors ils courent, et c'est cette course sans fin qui explique pourquoi le soleil et la lune traversent le ciel toujours à la même vitesse, sans jamais ralentir. »`,
+`Mais il arrive, parfois, qu'en plein jour le ciel s'assombrisse soudainement, ou que la pleine lune se voile d'une ombre inexpliquée. Dans ces moments de terreur, les villageois sortaient de leurs maisons en hurlant, frappant sur des boucliers de métal, des chaudrons, tout ce qui pouvait faire du bruit. « Sköll a presque refermé ses mâchoires ! criaient-ils vers le ciel. Lâche-le, monstre, lâche-le ! » Et invariablement, la lumière revenait.`,
+`Car les anciens le savaient : cette victoire n'était que provisoire. Un jour viendrait, annoncé depuis la nuit des temps, où les deux loups finiraient par rattraper leurs proies. Ce jour-là — le jour du Ragnarök, le crépuscule des dieux eux-mêmes — le soleil et la lune seraient dévorés d'un seul coup, avant qu'un monde nouveau, purifié, ne puisse renaître de ses cendres. Mais ce jour, disaient les anciens en resserrant leurs manteaux de fourrure, n'était pas encore venu. Pas cette nuit, en tout cas.`],
+  observer:"La course apparente du soleil et de la lune dans le ciel, toujours dans le même sens, jamais interrompue — sauf lors d'une éclipse.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Comment s'appelle le loup qui poursuit le soleil ?", r:["Sköll","Hati","Fenrir"], e:"Sköll, « celui qui trahit », court derrière le char de Sól."},
+      {q:"Que font les villageois quand le ciel s'assombrit en plein jour ?", r:["Ils font un maximum de bruit","Ils se cachent sans un mot","Ils allument des feux"], e:"Ils frappent les boucliers et les chaudrons pour faire lâcher le loup."},
+      {q:"Comment s'appelle le jour où les loups rattraperont leurs proies ?", r:["Le Ragnarök","Le Valhalla","Le solstice"], e:"Le Ragnarök, le crépuscule des dieux."},
+      {q:"Qui conduit le char d'argent de la lune ?", r:["Máni","Sól","Angrboda"], e:"Máni, le frère de Sól.", expert:true}]},
+    {type:"tambour", titre:"Fais lâcher Sköll !", consigne:"Éclipse ! Sköll referme ses mâchoires sur le soleil. Frappe le bouclier le plus vite possible pour le faire fuir avant que le ciel ne devienne noir."}
+  ]
+},
+{
+  id:9, num:"IX", region:"Amérique du Nord", titre:"La grande chasse à l'ours céleste", sous:"La légende de la Grande Ourse",
+  audio:"audio/09-ours.mp3", img:"img/09.jpg", lettre:"N",
+  texte:[
+`Chez les peuples des forêts du nord-est, on raconte qu'au commencement de l'été, un ours immense s'éveilla dans sa tanière céleste et, pris de panique en sentant l'odeur de chasseurs approcher, se mit à fuir à travers le ciel. Trois frères se lancèrent aussitôt à sa poursuite, arc à la main, déterminés à ne pas revenir bredouilles.`,
+`Un petit oiseau, Chickadee, les vit s'élancer et les supplia de l'emmener malgré sa taille minuscule. « Tu es bien trop petit pour cette chasse, lui dirent les frères en riant. Reste au village, tu n'as pas la force de suivre notre rythme. » Mais Chickadee, tenace, s'accrocha au dos du dernier chasseur sans qu'on le remarque, et c'est ainsi qu'il participa, malgré lui, à la plus longue traque jamais entreprise.`,
+`Tout au long de l'été, l'ours garda une avance confortable sur ses poursuivants : on pouvait le voir, chaque soir, haut dans le ciel, hors d'atteinte, tandis que les trois frères et le petit oiseau tenaient bon derrière lui, refusant d'abandonner. Mais à mesure que les jours raccourcissaient et que l'automne approchait, l'ours, épuisé par cette fuite sans fin, commença à descendre peu à peu vers l'horizon.`,
+`Un soir d'automne, enfin, ils le rattrapèrent. L'un des frères tira sa flèche, et l'ours, touché, s'effondra. Mais au moment de la mise à mort, ce fut le petit Chickadee, arrivé le premier grâce à sa légèreté, qui porta le coup final — lui que tous avaient jugé trop faible pour la chasse. Le sang de l'ours, en jaillissant, retomba sur les forêts endormies en contrebas et teinta chaque feuille qu'il toucha de rouge et d'orangé profond.`,
+`C'est depuis lors que les feuillages d'automne se parent de ces couleurs flamboyantes, précisément à la saison où la constellation de l'Ours redescend vers l'horizon du soir. Mais l'histoire ne s'achève jamais tout à fait : sous la neige de l'hiver, l'esprit de l'ours se love et se repose, avant de se relever chaque printemps pour reprendre sa course — et avec lui, chaque année, recommence la grande chasse, aussi fidèle que le retour des saisons elles-mêmes.`],
+  observer:"La Grande Ourse, reconnaissable à sa forme de casserole, tourne autour de l'étoile polaire toute l'année sans jamais disparaître sous l'horizon.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Combien de frères partent chasser l'ours ?", r:["Trois","Deux","Sept"], e:"Trois frères, arc à la main."},
+      {q:"Qui porte le coup final ?", r:["Le petit oiseau Chickadee","L'aîné des frères","Un loup"], e:"Chickadee, que tous jugeaient trop petit."},
+      {q:"Qu'explique le sang de l'ours dans cette légende ?", r:["Les couleurs rouges des feuilles d'automne","La couleur de la planète Mars","Le rouge du coucher de soleil"], e:"Il teinte les feuillages de rouge et d'orangé."},
+      {q:"Autour de quelle étoile la Grande Ourse tourne-t-elle toute l'année ?", r:["L'étoile polaire","Sirius","Véga"], e:"Elle tourne autour de l'étoile polaire sans jamais se coucher.", expert:true}]},
+    {type:"constellation", titre:"La casserole du ciel", consigne:"Relie les sept étoiles de la Grande Ourse : les quatre étoiles du corps de l'ours, puis les trois chasseurs qui le suivent en file.",
+      etoiles:[["Dubhe",74,28],["Merak",76,52],["Phecda",54,58],["Megrez",52,36],["Alioth",36,34],["Mizar",22,40],["Alkaïd",8,54]],
+      traits:[[0,1],[1,2],[2,3],[3,0],[3,4],[4,5],[5,6]], fin:"Prolonge la ligne Merak → Dubhe cinq fois vers le haut : tu tomberas sur l'étoile polaire."}
+  ]
+},
+{
+  id:10, num:"X", region:"Inde", titre:"Chandra et les vingt-sept épouses", sous:"Le mythe hindou des phases de la lune",
+  audio:"audio/10-chandra.mp3", img:null, art:"chandra", lettre:"O",
+  texte:[
+`Chandra, le dieu de la lune, était réputé pour sa beauté si parfaite qu'aucune déesse ne pouvait détourner son regard de lui. Le sage Daksha, voyant en lui un époux idéal, lui offrit la main de ses vingt-sept filles, chacune incarnant l'une des demeures lunaires — les nakshatras — que la lune traverse chaque mois dans le ciel. « Je te confie mes filles à toutes les vingt-sept, lui dit Daksha, à condition que tu leur accordes à chacune une attention égale. »`,
+`Chandra jura solennellement de tenir cette promesse. Mais dès la première nuit, son regard fut irrémédiablement capturé par Rohini, la plus douce et la plus belle de toutes ses épouses. Nuit après nuit, il revenait invariablement vers elle, oubliant peu à peu ses vingt-six autres femmes, restées seules dans leurs demeures célestes respectives.`,
+`« Nous ne t'avons pas vu depuis des lunes entières, lui reprochèrent un jour les épouses délaissées, en larmes. Tu avais juré de nous traiter également. » Chandra, aveuglé par son amour pour Rohini, refusa d'entendre leurs plaintes. Les épouses, à bout de patience, finirent par se tourner vers leur père. « Il ne respecte pas sa parole, lui dirent-elles. Fais quelque chose, ou nous resterons seules pour toujours. »`,
+`Daksha, furieux d'avoir été trahi dans sa confiance, convoqua son gendre. « Tu as brisé ton serment, lui dit-il d'une voix qui fit trembler les cieux. Puisque tu ne sais pas partager équitablement ta lumière, je te condamne à la perdre, peu à peu, chaque nuit, jusqu'à ce qu'il ne reste plus rien de toi. » La malédiction frappa aussitôt : nuit après nuit, l'éclat de Chandra faiblit, plongeant le monde dans une obscurité grandissante.`,
+`Les dieux, terrifiés à l'idée de perdre la lune pour toujours, vinrent implorer Daksha d'avoir pitié. « Je ne peux reprendre entièrement ma parole, répondit le sage après un long silence, mais je peux l'adoucir. Chandra devra désormais croître et décroître sans fin, partageant nécessairement sa présence entre chacune de ses épouses. » C'est ainsi que naquirent les phases de la lune : chaque déclin marque les nuits où Chandra quitte Rohini pour honorer ses autres épouses ; chaque pleine lune célèbre ses retrouvailles avec celle qu'il n'a jamais cessé d'aimer par-dessus toutes les autres.`],
+  observer:"Le cycle des phases de la lune, environ vingt-neuf jours et demi entre deux pleines lunes.",
+  epreuves:[
+    {type:"quiz", titre:"As-tu bien écouté ?", questions:[
+      {q:"Combien d'épouses le sage Daksha donne-t-il à Chandra ?", r:["Vingt-sept","Sept","Cent"], e:"Vingt-sept, une pour chaque demeure lunaire."},
+      {q:"Quelle épouse Chandra préfère-t-il ?", r:["Rohini","Lakshmi","Parvati"], e:"Rohini, la plus douce et la plus belle."},
+      {q:"Qui lance la malédiction sur Chandra ?", r:["Le sage Daksha","Rohini","Les vingt-six épouses"], e:"Daksha, leur père, trahi dans sa confiance."},
+      {q:"Combien de jours séparent environ deux pleines lunes ?", r:["29 jours et demi","7 jours","365 jours"], e:"Un cycle lunaire dure environ 29,5 jours.", expert:true}]},
+    {type:"ordre", titre:"Les visages de Chandra", consigne:"Range les phases de la lune dans l'ordre, en partant de la nouvelle lune, comme Chandra qui grandit puis décroît.", lunes:true, items:[
+      "Nouvelle lune","Premier croissant","Premier quartier","Lune gibbeuse croissante","Pleine lune","Lune gibbeuse décroissante","Dernier quartier","Dernier croissant"]},
+    {type:"cadenas", titre:"Les demeures lunaires", consigne:"Le palais de Daksha s'ouvre avec le nombre de demeures lunaires, les nakshatras, que la lune traverse chaque mois.", code:"27", indice:"Autant de demeures que d'épouses."}
+  ]
+}
+];
+
+/* =====================================================================
+   ÉTAT (progression enregistrée sur l'appareil)
+   ===================================================================== */
+const CLE = "nuit-etoilee-v1";
+let S = {mode:"etoile", son:true, res:{}, finale:null};
+try{ const t = localStorage.getItem(CLE); if(t) S = Object.assign(S, JSON.parse(t)); }catch(e){}
+function sauver(){ try{ localStorage.setItem(CLE, JSON.stringify(S)); }catch(e){} }
+const expert = () => S.mode === "astronome";
+const cleE = (c,i) => c.id + "-" + i;
+const etoilesDe = (c,i) => S.res[cleE(c,i)] || 0;
+const conteFini = c => c.epreuves.every((_,i) => etoilesDe(c,i) > 0);
+const totalEtoiles = () => CONTES.reduce((s,c)=> s + c.epreuves.reduce((t,_,i)=> t + etoilesDe(c,i), 0), 0);
+const maxEtoiles = () => CONTES.reduce((s,c)=> s + c.epreuves.length*3, 0);
+const toutFini = () => CONTES.every(conteFini);
+const notes = n => "★".repeat(n) + "☆".repeat(3-n);
+const noteDe = err => err === 0 ? 3 : err <= 2 ? 2 : 1;
+
+/* =====================================================================
+   OUTILS
+   ===================================================================== */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+function melanger(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function graine(s){ return function(){ s = (s*16807) % 2147483647; return (s-1)/2147483646; }; }
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z ]/g," ").replace(/\s+/g," ").trim();
+
+let AC = null;
+function son(type){
+  if(!S.son) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t = AC.currentTime;
+    const jouer = (f, d, dt=0, forme="sine", vol=.18) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = forme; o.frequency.value = f; o.connect(g); g.connect(AC.destination);
+      g.gain.setValueAtTime(0, t+dt); g.gain.linearRampToValueAtTime(vol, t+dt+.02); g.gain.exponentialRampToValueAtTime(.0001, t+dt+d);
+      o.start(t+dt); o.stop(t+dt+d+.05);
+    };
+    if(type==="ok"){ jouer(880,.35); jouer(1320,.5,.08); }
+    else if(type==="ko"){ jouer(180,.3,0,"triangle",.15); }
+    else if(type==="victoire"){ [523,659,784,1047].forEach((f,i)=>jouer(f,.6,i*.12)); }
+    else if(type==="tic"){ jouer(1200,.06,0,"sine",.06); }
+    else if(type==="boum"){ jouer(90,.18,0,"square",.12); }
+    else if(typeof type==="number"){ jouer(type,.25,0,"sine",.12); }
+  }catch(e){}
+}
+
+/* lune en SVG selon la phase (0 = nouvelle, 4 = pleine) */
+function svgLune(phase, taille=34){
+  const r = 15, c = 17;
+  const k = Math.cos(phase/8*2*Math.PI);           // 1 nouvelle, -1 pleine
+  const croissante = phase <= 4;
+  const rx = Math.abs(k)*r;
+  // partie éclairée : demi-disque côté droit (croissante) ou gauche (décroissante) + ellipse terminatrice
+  const cote = croissante ? 1 : 0;
+  const balayage = (k > 0) === croissante ? 0 : 1;
+  const d = phase===0 ? "" : phase===4 ? `M${c} ${c-r}A${r} ${r} 0 1 1 ${c} ${c+r}A${r} ${r} 0 1 1 ${c} ${c-r}Z`
+    : `M${c} ${c-r}A${r} ${r} 0 0 ${cote} ${c} ${c+r}A${rx} ${r} 0 0 ${balayage} ${c} ${c-r}Z`;
+  return `<svg width="${taille}" height="${taille}" viewBox="0 0 34 34" aria-hidden="true"><circle cx="${c}" cy="${c}" r="${r}" fill="#20243a" stroke="rgba(243,234,212,.25)"/>${d?`<path d="${d}" fill="#f3ead4"/>`:""}</svg>`;
+}
+
+/* illustrations dessinées pour les contes sans affiche */
+function dessinerArt(cv, type){
+  const W = cv.width = 600, H = cv.height = 900, x = cv.getContext("2d");
+  const g = x.createLinearGradient(0,0,0,H); g.addColorStop(0,"#05060c"); g.addColorStop(.7,"#11142a"); g.addColorStop(1,"#2a1d22");
+  x.fillStyle = g; x.fillRect(0,0,W,H);
+  const rnd = graine(type==="nout"?7:11);
+  for(let i=0;i<260;i++){ x.fillStyle=`rgba(243,234,212,${.15+rnd()*.6})`; x.beginPath(); x.arc(rnd()*W, rnd()*H*.8, rnd()*1.3+.2, 0, 7); x.fill(); }
+  if(type==="nout"){
+    // l'arche du corps de Nout, faite d'étoiles
+    for(let i=0;i<900;i++){
+      const a = Math.PI*(.04 + rnd()*.92), R = 230 + (rnd()-.5)*90*Math.sin(a);
+      const px = W/2 + Math.cos(a)*R*1.15, py = 640 - Math.sin(a)*R*1.6;
+      x.fillStyle = `rgba(230,194,122,${.25+rnd()*.7})`; x.beginPath(); x.arc(px,py,rnd()*1.8+.3,0,7); x.fill();
+    }
+    // le soleil qui se couche à l'ouest
+    const s = x.createRadialGradient(70,640,4,70,640,90); s.addColorStop(0,"#ffe3a0"); s.addColorStop(.35,"#e6a24a"); s.addColorStop(1,"rgba(230,120,60,0)");
+    x.fillStyle = s; x.beginPath(); x.arc(70,640,90,0,7); x.fill();
+    // la terre (Geb)
+    x.fillStyle="#0b0a0f"; x.beginPath(); x.moveTo(0,700); x.quadraticCurveTo(W/2,660,W,700); x.lineTo(W,H); x.lineTo(0,H); x.fill();
+    // pyramides
+    x.fillStyle="#17131a"; [[380,700,120],[500,705,80]].forEach(([px,py,s])=>{ x.beginPath(); x.moveTo(px-s,py); x.lineTo(px,py-s*.8); x.lineTo(px+s,py); x.fill(); });
+  } else {
+    // vingt-sept demeures en cercle autour de la lune
+    const cx=W/2, cy=380;
+    for(let i=0;i<27;i++){ const a=i/27*2*Math.PI - Math.PI/2; x.fillStyle = i===3 ? "#ffd98a" : "rgba(230,194,122,.75)";
+      x.beginPath(); x.arc(cx+Math.cos(a)*230, cy+Math.sin(a)*230, i===3?5:3, 0, 7); x.fill(); }
+    x.strokeStyle="rgba(201,164,90,.25)"; x.lineWidth=1; x.beginPath(); x.arc(cx,cy,230,0,7); x.stroke();
+    const l = x.createRadialGradient(cx-40,cy-40,10,cx,cy,150); l.addColorStop(0,"#fff8e4"); l.addColorStop(.7,"#e9dcb8"); l.addColorStop(1,"#b9a77e");
+    x.shadowColor="rgba(243,234,212,.5)"; x.shadowBlur=60; x.fillStyle=l; x.beginPath(); x.arc(cx,cy,140,0,7); x.fill(); x.shadowBlur=0;
+    x.fillStyle="rgba(10,12,19,.88)"; x.beginPath(); x.arc(cx+90,cy-10,140,0,7); x.fill();
+    x.fillStyle="#0b0a0f"; x.beginPath(); x.moveTo(0,760); x.quadraticCurveTo(W*.3,720,W*.55,750); x.quadraticCurveTo(W*.8,775,W,740); x.lineTo(W,H); x.lineTo(0,H); x.fill();
+  }
+  x.fillStyle="rgba(243,234,212,.9)"; x.font="italic 44px Lora, Georgia, serif"; x.textAlign="center";
+  x.fillText(type==="nout"?"Nout":"Chandra", W/2, 830);
+}
+function visuel(c, cls=""){
+  return c.img ? `<img class="${cls}" src="${c.img}" alt="Affiche du conte « ${esc(c.titre)} »" loading="lazy">`
+               : `<canvas class="${cls}" data-art="${c.art}" role="img" aria-label="Illustration du conte « ${esc(c.titre)} »"></canvas>`;
+}
+function peindreArts(root){ root.querySelectorAll("canvas[data-art]").forEach(cv => dessinerArt(cv, cv.dataset.art)); }
+
+/* =====================================================================
+   VUES
+   ===================================================================== */
+const ACCROCHES = {
+  1:"Une étoile que personne n'a jamais vue tourne autour de Sirius depuis toujours.",
+  2:"Les vaches du ciel ont renversé leur lait : la trace n'a jamais séché.",
+  3:"Perdu dans les dunes, Yacine retrouve sa route grâce au nom d'une étoile.",
+  4:"Le plus grand chasseur du monde, vaincu par une bête pas plus grande qu'un doigt.",
+  5:"Une fois par an, les pies bâtissent un pont au-dessus du fleuve d'étoiles.",
+  6:"Dans les zones sombres du ciel se cache un immense émeu.",
+  7:"Chaque soir, la déesse du ciel avale le soleil pour qu'il renaisse au matin.",
+  8:"Deux loups courent après le soleil et la lune, sans jamais s'arrêter.",
+  9:"Trois frères et un petit oiseau traquent l'ours céleste tout l'été.",
+  10:"Pour une promesse brisée, la lune grandit et décroît sans fin."
+};
+
+/* Ce qu'une vue doit arrêter en partant (boucles d'animation, écouteurs, ScrollTrigger). */
+let finVue = [];
+function viderVue(){ finVue.forEach(f => { try{ f && f(); }catch(e){} }); finVue = []; }
+
+/* ---------------------------------------------------------------------
+   ROUE DES CONTES
+   Une seule valeur, `tour`, pilote tout : 0 = l'anneau autour du titre,
+   1 = le tambour avec le conte I de face, puis chaque entier = un conte de plus.
+   --------------------------------------------------------------------- */
+function montrerRoue(root){
+  if(!root) return null;
+  const CARTE_H = .38, CARTE_L_MAX = .34, CARTE_L_MAX_ETROIT = .62, RATIO = 1.45, PAS = 40, TAMBOUR = 2.22, OBJECTIF = 2.7,
+        ANNEAU = 1.14, ARC = 1.82, TITRE = .124, CULL = 1.6, MOLETTE = 900, GLISSE = 420, POSE = 140, LISSAGE = .12;
+  const scene = $(".roue-scene", root), axe = $(".roue-axe", root), cartes = [...root.querySelectorAll(".roue-carte")];
+  const etiquette = $(".roue-label", root), bloc = $(".roue-titre", root), aide = $(".roue-aide", root);
+  const index = [...root.querySelectorAll(".roue-index button")], liste = $(".roue-index", root);
+  const n = cartes.length, dernier = n - 1, calme = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const borne = (v,a,b) => Math.min(b, Math.max(a, v)), rad = d => d*Math.PI/180;
+  let tour = 0, cible = 0, actif = -1, cadre = 0, M = null, pose = 0;
+
+  const mesurer = () => {
+    const w = scene.clientWidth, h = scene.clientHeight; if(!h) return;
+    const etroit = w < 640;
+    root.classList.toggle("etroit", etroit);
+    aide.textContent = etroit ? "Glisse de côté ou touche les flèches pour tourner la roue" : "Fais tourner la roue avec la molette, en glissant ou avec les flèches";
+    const cw = Math.min(h*CARTE_H*RATIO, w*(etroit?CARTE_L_MAX_ETROIT:CARTE_L_MAX)), ch = cw/RATIO;
+    const rAnneau = etroit ? Math.min(w*.36, h*.34) : ch*ANNEAU;
+    M = { cw, ch, rAnneau, rTambour: ch*TAMBOUR, arc: ch*ARC, echelle: borne(((2*Math.PI*rAnneau/n)*.82)/cw, .16, 1) };
+    scene.style.perspective = ch*OBJECTIF + "px";
+    cartes.forEach(c => { c.style.width = cw+"px"; c.style.height = ch+"px"; c.style.marginLeft = -cw/2+"px"; c.style.marginTop = -ch/2+"px"; });
+    etiquette.style.fontSize = Math.max(30, ch*TITRE*1.9) + "px";
+    $(".t", bloc).style.fontSize = Math.max(20, ch*TITRE*1.05) + "px";
+    dessiner();
+  };
+  const placer = (degAnneau, degTambour, m) =>
+    `translateX(${m * -M.arc * (1 - Math.cos(rad(degTambour)))}px) rotateZ(${(1-m)*degAnneau}deg) translateY(${-(1-m)*M.rAnneau}px) rotateX(${m*degTambour}deg) translateZ(${m*M.rTambour}px)`;
+  const dessiner = () => {
+    if(!M) return;
+    const m = borne(tour, 0, 1), pos = Math.max(0, tour - 1);
+    axe.style.transform = `translateZ(${-m*M.rTambour}px)`;
+    for(let i=0;i<n;i++){
+      const d = i - pos, c = cartes[i], cache = m > .5 && Math.abs(d) > CULL;
+      c.style.transform = placer(d*(360/n), d*PAS, m);
+      c.style.opacity = cache ? "0" : "1";
+      c.style.pointerEvents = cache ? "none" : "";
+      c.style.zIndex = String(Math.round(100 - Math.abs(d)*2));
+      c.firstElementChild.style.transform = `scale(${M.echelle + (1-M.echelle)*m})`;
+    }
+    etiquette.style.opacity = String(1 - m); aide.style.opacity = String(1 - m); bloc.style.opacity = String(m);
+    liste.style.opacity = String(m); liste.style.pointerEvents = m > .5 ? "auto" : "none";
+    const proche = borne(Math.round(pos), 0, dernier);
+    if(proche !== actif){
+      actif = proche; const c = CONTES[actif];
+      $("#roue-k", root).textContent = `Conte ${c.num} · ${c.region}`; $("#roue-t", root).textContent = c.titre;
+      index.forEach((b,i) => b.classList.toggle("actif", i === actif));
+    }
+  };
+  const boucle = () => {
+    cadre = 0;
+    const ecart = cible - tour;
+    tour = Math.abs(ecart) < .0005 ? cible : tour + ecart*(calme ? 1 : LISSAGE);
+    dessiner();
+    if(tour !== cible) cadre = requestAnimationFrame(boucle);
+  };
+  const vers = v => { cible = borne(v, 0, dernier + 1); if(!cadre) cadre = requestAnimationFrame(boucle); };
+  const poser = () => { clearTimeout(pose); pose = setTimeout(() => vers(cible > .5 ? Math.max(1, Math.round(cible)) : 0), POSE); };
+
+  // La molette ne tourne la roue que si elle est entièrement à l'écran, et rend la main
+  // à la page une fois arrivée au bout, pour ne jamais piéger la lecture.
+  const molette = ev => {
+    const r = root.getBoundingClientRect();
+    if(r.top < -30 || r.bottom > innerHeight + 30) return;
+    const v = cible + ev.deltaY / MOLETTE;
+    if(v > 0 && v < dernier + 1){ ev.preventDefault(); vers(v); poser(); }
+    else vers(v);
+  };
+  scene.addEventListener("wheel", molette, {passive:false});
+
+  // Souris : on tire de haut en bas. Doigt : on glisse de côté, la page garde le défilement vertical.
+  let depart = null, bouge = 0;
+  scene.addEventListener("pointerdown", ev => { depart = {x:ev.clientX, y:ev.clientY, type:ev.pointerType}; bouge = 0; });
+  scene.addEventListener("pointermove", ev => {
+    if(!depart) return;
+    const tactile = depart.type !== "mouse";
+    if(tactile && bouge < 8 && Math.abs(ev.clientY - depart.y) > Math.abs(ev.clientX - depart.x)) return;
+    const delta = tactile ? (depart.x - ev.clientX) : (depart.y - ev.clientY);
+    bouge += Math.abs(delta);
+    if(bouge > 6){ if(!tactile && !scene.hasPointerCapture(ev.pointerId)) scene.setPointerCapture(ev.pointerId); vers(cible + delta / (tactile ? GLISSE*.6 : GLISSE)); }
+    depart.x = ev.clientX; depart.y = ev.clientY;
+  });
+  const lacher = () => { if(depart && bouge > 6) poser(); depart = null; };
+  scene.addEventListener("pointerup", lacher); scene.addEventListener("pointercancel", lacher);
+  scene.addEventListener("keydown", ev => {
+    if(ev.key === "ArrowDown" || ev.key === "ArrowRight") vers(Math.round(cible) + 1);
+    else if(ev.key === "ArrowUp" || ev.key === "ArrowLeft") vers(Math.round(cible) - 1);
+    else return;
+    ev.preventDefault();
+  });
+  // Un clic sur une affiche qui n'est pas de face la fait venir devant ; de face, il ouvre le conte.
+  cartes.forEach((c,i) => c.addEventListener("click", ev => {
+    if(bouge > 6){ ev.preventDefault(); return; }
+    if(!(tour > .98 && Math.round(tour - 1) === i)){ ev.preventDefault(); vers(i + 1); }
+  }));
+  index.forEach((b,i) => b.onclick = () => vers(i + 1));
+  root.querySelectorAll(".roue-nav button").forEach(b => b.onclick = () => vers(Math.round(cible) + +b.dataset.d));
+
+  const ro = new ResizeObserver(mesurer); ro.observe(scene); mesurer();
+  return () => { cancelAnimationFrame(cadre); clearTimeout(pose); ro.disconnect(); scene.removeEventListener("wheel", molette); };
+}
+
+/* ---------------------------------------------------------------------
+   LE VOYAGE : frise épinglée qui glisse de côté au défilement.
+   Sans GSAP (hors ligne) ou avec « réduire les animations », elle reste
+   une frise lisible qu'on fait défiler à la main.
+   --------------------------------------------------------------------- */
+function montrerVoyage(sec){
+  if(!sec || !window.gsap || !window.ScrollTrigger || matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+  gsap.registerPlugin(ScrollTrigger);
+  sec.classList.add("anime");
+  const piste = $(".voyage-piste", sec), panneau = $(".voyage-panneau", sec);
+  const distance = () => Math.max(0, piste.scrollWidth - panneau.clientWidth);
+  const glisse = gsap.to(piste, { x: () => -distance(), ease: "none",
+    scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + distance(), pin: true, scrub: .6, invalidateOnRefresh: true, anticipatePin: 1 } });
+  const fil = gsap.fromTo($(".voyage-fil i", sec), {scaleX: 0}, { scaleX: 1, ease: "none",
+    scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + distance(), scrub: .6, invalidateOnRefresh: true } });
+  const etapes = [...sec.querySelectorAll(".etape")].map(et => gsap.timeline({
+      scrollTrigger: { trigger: et, containerAnimation: glisse, start: "left 88%", end: "left 58%", scrub: true } })
+    .fromTo($(".tige", et), {scaleY: 0}, {scaleY: 1, duration: .4, ease: "none"})
+    .fromTo($(".point", et), {scale: 0}, {scale: 1, duration: .4, ease: "back.out(2)"}, "<")
+    .fromTo(et.querySelectorAll(".ligne"), {yPercent: 110}, {yPercent: 0, duration: 1, stagger: .1, ease: "power2.out"}, "-=.15"));
+  const rafraichir = () => ScrollTrigger.refresh();
+  const img = $(".voyage-image img", sec); if(img && !img.complete) img.addEventListener("load", rafraichir, {once:true});
+  if(document.fonts) document.fonts.ready.then(rafraichir);
+  return () => {
+    etapes.forEach(t => { t.scrollTrigger && t.scrollTrigger.kill(); t.kill(); });
+    fil.scrollTrigger.kill(); fil.kill(); glisse.scrollTrigger.kill(true); glisse.kill();
+  };
+}
+
+const APP = $("#app");
+const POS = [[8,32],[17,17],[28,27],[37,11],[49,21],[59,9],[67,28],[78,17],[87,33],[94,13]];
+
+function vueAccueil(){
+  viderVue();
+  const lettres = CONTES.map(c => conteFini(c) ? `<span class="ok">${c.lettre}</span>` : `<span>·</span>`).join("");
+  const rnd = graine(3);
+  let fond = ""; for(let i=0;i<140;i++) fond += `<circle cx="${(rnd()*100).toFixed(1)}" cy="${(rnd()*46).toFixed(1)}" r="${(rnd()*.22+.05).toFixed(2)}" fill="#f3ead4" opacity="${(rnd()*.5+.15).toFixed(2)}"/>`;
+  let traits = "";
+  for(let i=0;i<9;i++){ const a=POS[i], b=POS[i+1], on = conteFini(CONTES[i]) && conteFini(CONTES[i+1]);
+    traits += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="${on?"#c9a45a":"rgba(243,234,212,.14)"}" stroke-width="${on?.35:.2}" ${on?"":'stroke-dasharray=".8 .8"'}/>`; }
+  const astres = CONTES.map((c,i)=>{ const [x,y]=POS[i], f=conteFini(c);
+    return `<a class="etoile-c" href="#conte-${c.id}" aria-label="Conte ${c.num} : ${esc(c.titre)}${f?" (terminé)":""}">
+      ${f?`<circle cx="${x}" cy="${y}" r="3.2" fill="url(#halo)"/>`:""}
+      <circle cx="${x}" cy="${y}" r="5" fill="transparent"/>
+      <circle class="coeur" cx="${x}" cy="${y}" r="${f?1.3:.9}" fill="${f?"#e6c27a":"#f3ead4"}"/>
+      <text x="${x}" y="${y+4.6}" text-anchor="middle" font-size="2.1" fill="${f?"#e6c27a":"#9a8f74"}" font-family="Poppins, sans-serif">${c.num}</text>
+      ${f?`<text x="${x}" y="${y-2.6}" text-anchor="middle" font-size="2.6" fill="#f3ead4" font-family="Lora, serif">${c.lettre}</text>`:""}
+    </a>`; }).join("");
+  const nbFinis = CONTES.filter(conteFini).length;
+
+  APP.innerHTML = `
+  <section class="hero">
+    <div class="label">Kemeted &amp; Association présente</div>
+    <h1>Nuit Étoilée</h1>
+    <div class="script">Contes du monde</div>
+    <div class="sep" aria-hidden="true">✦ ⋆ ✧ ⋆ ✦</div>
+    <p>Sous le même ciel, les peuples ont regardé les mêmes étoiles et raconté des histoires différentes. Écoute les dix contes, relève leurs défis, et chaque conte réussi allumera une étoile et te donnera une lettre du mot secret.</p>
+  </section>
+
+  <section class="carte-ciel" aria-label="Carte du ciel : les dix contes">
+    <svg viewBox="0 0 100 44" role="img" aria-label="Les dix contes reliés comme une constellation">
+      <defs><radialGradient id="halo"><stop offset="0" stop-color="#e6c27a" stop-opacity=".7"/><stop offset="1" stop-color="#e6c27a" stop-opacity="0"/></radialGradient></defs>
+      ${fond}${traits}${astres}
+    </svg>
+    <div class="legende">
+      <span><b style="color:var(--or-vif)">${nbFinis}</b> / 10 contes réussis · <b style="color:var(--or-vif)">${totalEtoiles()}</b> / ${maxEtoiles()} étoiles</span>
+      <div class="lettres" aria-label="Lettres du mot secret">${lettres}</div>
+    </div>
+  </section>
+  <div class="rangee" style="justify-content:center">
+    <a class="btn" href="#${premierAFaire()}">${nbFinis?"Continuer l'aventure":"Commencer par le conte I"}</a>
+    <a class="btn fantome" href="#finale">L'énigme finale ${toutFini()?"✦":"(10 lettres)"}</a>
+  </div>
+
+  <section class="bloc">
+    <header><div class="label">Avant de partir</div><h2>L'introduction de la soirée</h2></header>
+    <div class="intro-carte">
+      <div class="lune" aria-hidden="true"></div>
+      <div style="display:grid;gap:8px;width:100%;min-width:0">
+        <p style="margin:0">La voix du conteur de la Nuit Étoilée, avec son fond musical, t'accueille et t'emmène sous le ciel.</p>
+        <audio controls preload="none" src="audio/00-intro.mp3"></audio>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloc">
+    <header><div class="label">Ton niveau</div><h2>Choisis ton mode de jeu</h2></header>
+    <div class="modes">
+      <button class="mode" type="button" data-mode="etoile" aria-pressed="${!expert()}">
+        <span class="label">7 à 11 ans</span><h3>Petite étoile</h3>
+        <p>Puzzles plus petits, plus de temps, constellations dessinées en pointillés pour te guider.</p>
+      </button>
+      <button class="mode" type="button" data-mode="astronome" aria-pressed="${expert()}">
+        <span class="label">12 ans et plus</span><h3>Astronome</h3>
+        <p>Une question en plus par quiz, des chronos plus serrés, des constellations à retrouver sans modèle.</p>
+      </button>
+    </div>
+  </section>
+
+  <section class="bloc">
+    <header><div class="label">Dix regards sur le ciel</div><h2>La roue des contes</h2></header>
+    <div class="roue" id="roue">
+      <div class="roue-scene" tabindex="0" role="region" aria-label="Roue des contes : utilise les flèches haut et bas pour la tourner">
+        <div class="roue-axe">
+          ${CONTES.map((c,i) => `<a class="roue-carte" href="#conte-${c.id}" data-i="${i}" aria-label="Conte ${c.num} : ${esc(c.titre)}">
+            <span class="face"><img alt="" draggable="false" ${c.img?`src="${c.img}"`:`data-art="${c.art}"`}>${conteFini(c)?`<span class="fait">${c.lettre}</span>`:""}<span class="action">Écouter le conte →</span></span></a>`).join("")}
+        </div>
+      </div>
+      <div class="roue-label">Contes<br>du monde</div>
+      <div class="roue-titre" aria-live="polite"><span class="label" id="roue-k"></span><span class="t" id="roue-t"></span></div>
+      <ol class="roue-index">${CONTES.map((c,i)=>`<li><button type="button" data-i="${i}">${c.num} · ${esc(c.titre)}${conteFini(c)?`<span class="ok">✦</span>`:""}</button></li>`).join("")}</ol>
+      <div class="roue-aide">Fais tourner la roue avec la molette, en glissant ou avec les flèches</div>
+      <div class="roue-nav"><button type="button" data-d="-1" aria-label="Conte précédent">↑</button><button type="button" data-d="1" aria-label="Conte suivant">↓</button></div>
+    </div>
+  </section>
+
+  <section class="voyage" id="voyage" aria-label="Le voyage des dix contes">
+    <div class="voyage-panneau">
+      <div class="voyage-piste">
+        <div class="voyage-image"><img src="img/affiche.jpg" alt="Affiche des dix constellations de la Nuit Étoilée"></div>
+        <div class="voyage-intro">
+          <div style="display:grid;gap:12px"><div class="label">Un seul ciel</div><h2>Le voyage sous le même ciel</h2></div>
+          <p>Du Mali à l'Inde · dix peuples, dix façons de lire les étoiles</p>
+        </div>
+        <div class="voyage-corps">
+          <div class="voyage-fil"><i></i></div>
+          ${CONTES.map((c,i) => `<a class="etape ${i%2?"bas":"haut"} ${conteFini(c)?"fini":""}" href="#conte-${c.id}" style="--i:${i}">
+            <span class="tige"></span><span class="point"></span>
+            <span class="masque"><span class="ligne label">Conte ${c.num} · ${esc(c.region)}</span></span>
+            <span class="masque"><span class="ligne t">${esc(c.titre)}</span></span>
+            <span class="masque"><span class="ligne d">${esc(ACCROCHES[c.id])}</span></span>
+            <span class="masque"><span class="ligne lien">Écouter →</span></span>
+          </a>`).join("")}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloc">
+    <header><div class="label">Ta progression</div><h2>Les contes</h2></header>
+    <div class="grille">
+      ${CONTES.map(c => { const f = conteFini(c), n = c.epreuves.filter((_,i)=>etoilesDe(c,i)>0).length;
+        return `<a class="vignette" href="#conte-${c.id}">
+          <div class="vis">${visuel(c)}</div>
+          <span class="etat ${f?"fini":""}">${f?"Lettre "+c.lettre:n+" / "+c.epreuves.length+" défis"}</span>
+          <div class="txt"><span class="label">Conte ${c.num} · ${esc(c.region)}</span><h3>${esc(c.titre)}</h3><span class="sourdine" style="font-size:14px">${esc(c.sous)}</span></div>
+        </a>`; }).join("")}
+    </div>
+  </section>`;
+  peindreArts(APP);
+  APP.querySelectorAll(".mode").forEach(b => b.onclick = () => {
+    S.mode = b.dataset.mode; sauver(); majBarre();
+    APP.querySelectorAll(".mode").forEach(x => x.setAttribute("aria-pressed", x === b));
+  });
+  APP.querySelectorAll(".roue-carte img[data-art]").forEach(img => { const cv = document.createElement("canvas"); dessinerArt(cv, img.dataset.art); img.src = cv.toDataURL("image/jpeg", .85); });
+  finVue.push(montrerRoue($("#roue")), montrerVoyage($("#voyage")));
+}
+function premierAFaire(){ const c = CONTES.find(c => !conteFini(c)); return c ? "conte-"+c.id : "finale"; }
+
+function vueConte(c){
+  viderVue();
+  const idx = CONTES.indexOf(c), prec = CONTES[idx-1], suiv = CONTES[idx+1], fini = conteFini(c);
+  const noms = {quiz:"Quiz", invisible:"Jeu d'écoute", cadenas:"Cadenas", ordre:"Remettre en ordre", enigme:"Devinette", memory:"Mémoire", constellation:"Constellation", pont:"Jeu d'adresse", puzzle:"Puzzle", tambour:"Jeu de rapidité"};
+  APP.innerHTML = `
+  <article class="conte">
+    <div class="affiche">${visuel(c)}</div>
+    <div style="min-width:0">
+      <header class="tete">
+        <div class="label">Conte ${c.num} · ${esc(c.region)}</div>
+        <h1>${esc(c.titre)}</h1>
+        <div class="sous">${esc(c.sous)}</div>
+      </header>
+      <div class="lecteur">
+        <span class="label">Écouter le conte</span>
+        <audio controls preload="none" src="${c.audio}"></audio>
+      </div>
+      <div class="recit">${c.texte.map(p=>`<p>${esc(p)}</p>`).join("")}</div>
+      <div class="observer"><span class="label">À observer ce soir</span>${esc(c.observer)}</div>
+
+      <section class="epreuves" aria-label="Défis du conte">
+        <div class="label">Les défis du conte</div>
+        ${c.epreuves.map((e,i)=>{ const n = etoilesDe(c,i);
+          return `<div class="epreuve ${n?"faite":""}">
+            <span class="rond">${n?"✓":i+1}</span>
+            <div style="min-width:0"><h3>${esc(e.titre)}</h3><p>${noms[e.type]}${n?` · <span class="mini-etoiles">${notes(n)}</span>`:""}</p></div>
+            <button class="btn ${n?"fantome":""}" type="button" data-ep="${i}">${n?"Rejouer":"Jouer"}</button>
+          </div>`; }).join("")}
+      </section>
+      <div class="recompense">
+        <span class="grande-lettre">${fini?c.lettre:"?"}</span>
+        <span>${fini?`Bravo ! La lettre <b style="color:var(--or-vif)">${c.lettre}</b> rejoint ton mot secret. Il te faut les dix lettres pour l'énigme finale.`:"Réussis tous les défis de ce conte pour gagner une lettre du mot secret."}</span>
+      </div>
+      <nav class="nav-contes">
+        ${prec?`<a class="btn fantome" href="#conte-${prec.id}">← Conte ${prec.num}</a>`:`<a class="btn fantome" href="#accueil">← Accueil</a>`}
+        ${suiv?`<a class="btn fantome" href="#conte-${suiv.id}">Conte ${suiv.num} →</a>`:`<a class="btn fantome" href="#finale">Énigme finale →</a>`}
+      </nav>
+    </div>
+  </article>`;
+  peindreArts(APP);
+  APP.querySelectorAll("[data-ep]").forEach(b => b.onclick = () => ouvrirEpreuve(c, +b.dataset.ep));
+}
+
+/* =====================================================================
+   SCÈNE DES ÉPREUVES
+   ===================================================================== */
+const SCENE = $("#scene"), BOITE = $("#scene-boite");
+let nettoyage = null;
+function fermerScene(){ if(nettoyage){ nettoyage(); nettoyage = null; } SCENE.hidden = true; document.body.style.overflow = ""; }
+document.addEventListener("keydown", e => { if(e.key==="Escape" && !SCENE.hidden) fermerScene(); });
+
+function ouvrirEpreuve(c, i){
+  const e = c.epreuves[i];
+  SCENE.hidden = false; document.body.style.overflow = "hidden"; SCENE.scrollTop = 0;
+  BOITE.innerHTML = `
+    <div class="haut"><div style="flex:1;min-width:0"><div class="label">Conte ${c.num} · défi ${i+1} / ${c.epreuves.length}</div><h2 id="scene-titre">${esc(e.titre)}</h2></div>
+      <button class="fermer" type="button" aria-label="Fermer">×</button></div>
+    ${e.consigne?`<p class="consigne">${esc(e.consigne)}</p>`:""}
+    <div id="jeu"></div>`;
+  $(".fermer", BOITE).onclick = () => { fermerScene(); route(); };
+  const fini = err => {
+    if(nettoyage){ nettoyage(); nettoyage = null; }
+    const n = noteDe(err), avant = conteFini(c);
+    S.res[cleE(c,i)] = Math.max(etoilesDe(c,i), n); sauver();
+    const lettre = !avant && conteFini(c);
+    son("victoire");
+    const suivante = c.epreuves.findIndex((_,k)=> etoilesDe(c,k)===0);
+    $("#jeu", BOITE).innerHTML = `<div class="resultat">
+      <div class="label">Défi réussi</div>
+      <div class="etoiles-gagnees" aria-label="${n} étoiles sur 3">${"★".repeat(n)}<span class="v">${"★".repeat(3-n)}</span></div>
+      <p style="margin:0">${n===3?"Parfait, sans une seule erreur !":n===2?"Très bien joué !":"Réussi ! Rejoue plus tard pour gagner plus d'étoiles."}</p>
+      ${e.fin?`<p class="explic">${esc(e.fin)}</p>`:""}
+      ${lettre?`<div class="recompense" style="margin-top:6px"><span class="grande-lettre">${c.lettre}</span><span>Conte terminé ! Tu gagnes la lettre <b style="color:var(--or-vif)">${c.lettre}</b>.</span></div>`:""}
+      <div class="rangee" style="justify-content:center;margin-top:8px">
+        ${suivante>=0?`<button class="btn" type="button" id="b-suite">Défi suivant</button>`:""}
+        <button class="btn ${suivante>=0?"fantome":""}" type="button" id="b-retour">${suivante>=0?"Revenir au conte":"Voir le conte"}</button>
+        ${lettre?`<a class="btn fantome" href="#${premierAFaire()}" id="b-autre">${toutFini()?"Énigme finale":"Conte suivant"}</a>`:""}
+      </div></div>`;
+    const bs = $("#b-suite", BOITE); if(bs) bs.onclick = () => ouvrirEpreuve(c, suivante);
+    $("#b-retour", BOITE).onclick = () => { fermerScene(); route(); };
+    const ba = $("#b-autre", BOITE); if(ba) ba.onclick = () => fermerScene();
+  };
+  JEUX[e.type]($("#jeu", BOITE), e, fini);
+  $(".fermer", BOITE).focus({preventScroll:true});
+}
+
+/* =====================================================================
+   MOTEURS DE JEU — chacun appelle fini(nombreErreurs)
+   ===================================================================== */
+const JEUX = {};
+
+JEUX.quiz = (el, e, fini) => {
+  const qs = e.questions.filter(q => !q.expert || expert());
+  let k = 0, err = 0;
+  const poser = () => {
+    const q = qs[k], opts = melanger(q.r.map((t,j)=>({t, bon:j===0})));
+    el.innerHTML = `<div class="q">
+      <div class="points">${qs.map((_,j)=>`<i class="${j<k?"f":""}"></i>`).join("")}</div>
+      <span class="compteur">Question ${k+1} sur ${qs.length}</span>
+      <h3>${esc(q.q)}</h3>
+      <div class="choix">${opts.map((o,j)=>`<button type="button" data-j="${j}">${esc(o.t)}</button>`).join("")}</div>
+      <p class="explic" id="explic"></p>
+      <div class="rangee" id="suite"></div></div>`;
+    el.querySelectorAll(".choix button").forEach(b => b.onclick = () => {
+      const o = opts[+b.dataset.j];
+      if(b.classList.contains("ko") || el.querySelector(".choix .ok")) return;
+      if(o.bon){
+        b.classList.add("ok"); son("ok");
+        $("#explic", el).textContent = q.e;
+        $("#suite", el).innerHTML = `<button class="btn" type="button">${k<qs.length-1?"Question suivante":"Terminer"}</button>`;
+        $("#suite button", el).onclick = () => { k++; k<qs.length ? poser() : fini(err); };
+        $("#suite button", el).focus();
+      } else { b.classList.add("ko"); err++; son("ko"); $("#explic", el).textContent = "Pas tout à fait… essaie une autre réponse."; }
+    });
+  };
+  poser();
+};
+
+JEUX.invisible = (el, e, fini) => {
+  el.innerHTML = `<canvas class="toile" id="cv" aria-label="Ciel autour de Sirius : touche pour chercher l'étoile cachée"></canvas>
+    <div class="msg" id="msg">Touche le ciel près de Sirius…</div><div class="compteur" style="text-align:center" id="nb"></div>`;
+  const cv = $("#cv", el), x = cv.getContext("2d");
+  const N = 560; cv.width = N; cv.height = N;
+  const rnd = graine(42), fond = Array.from({length:180}, () => [rnd()*N, rnd()*N, rnd()*1.2+.2, rnd()*.6+.2]);
+  const SX = .5, SY = .46, a = Math.random()*Math.PI*2, d0 = .14 + Math.random()*.14;
+  const T = {x: Math.min(.9,Math.max(.1, SX + Math.cos(a)*d0)), y: Math.min(.9,Math.max(.1, SY + Math.sin(a)*d0))};
+  const seuil = expert() ? .045 : .07;
+  const traces = []; let essais = 0, trouve = false;
+  const dessiner = () => {
+    x.fillStyle = "#05060b"; x.fillRect(0,0,N,N);
+    fond.forEach(([px,py,r,o]) => { x.fillStyle=`rgba(243,234,212,${o})`; x.beginPath(); x.arc(px,py,r,0,7); x.fill(); });
+    const g = x.createRadialGradient(SX*N,SY*N,0,SX*N,SY*N,60); g.addColorStop(0,"#ffffff"); g.addColorStop(.12,"#cfe3ff"); g.addColorStop(1,"rgba(150,190,255,0)");
+    x.fillStyle = g; x.beginPath(); x.arc(SX*N,SY*N,60,0,7); x.fill();
+    x.fillStyle="rgba(243,234,212,.7)"; x.font="15px Poppins, sans-serif"; x.textAlign="center"; x.fillText("Sigui Tolo · Sirius", SX*N, SY*N+48);
+    traces.forEach(t => { x.strokeStyle = t.c; x.lineWidth = 2; x.globalAlpha = t.o; x.beginPath(); x.arc(t.x*N, t.y*N, 16, 0, 7); x.stroke(); x.globalAlpha = 1; });
+    if(trouve){ const h = x.createRadialGradient(T.x*N,T.y*N,0,T.x*N,T.y*N,26); h.addColorStop(0,"#ffffff"); h.addColorStop(.3,"#e6c27a"); h.addColorStop(1,"rgba(230,194,122,0)");
+      x.fillStyle=h; x.beginPath(); x.arc(T.x*N,T.y*N,26,0,7); x.fill(); x.fillStyle="#e6c27a"; x.fillText("Sirius B", T.x*N, T.y*N-30); }
+  };
+  dessiner();
+  cv.addEventListener("pointerdown", ev => {
+    if(trouve) return;
+    const r = cv.getBoundingClientRect(), px = (ev.clientX-r.left)/r.width, py = (ev.clientY-r.top)/r.height;
+    const d = Math.hypot(px-T.x, py-T.y); essais++;
+    traces.forEach(t => t.o *= .7);
+    let txt, col;
+    if(d < seuil){ trouve = true; txt = "Trouvée ! Ce qui est invisible n'est pas forcément absent."; col = "#e6c27a"; }
+    else if(d < .1){ txt = "Brûlant !"; col = "#ff9a6b"; }
+    else if(d < .17){ txt = "Très chaud"; col = "#f0b56a"; }
+    else if(d < .27){ txt = "Tiède…"; col = "#c9b98a"; }
+    else { txt = "Froid, très loin"; col = "#7fa6d6"; }
+    traces.push({x:px, y:py, c:col, o:1});
+    son(trouve ? "ok" : Math.round(220 + Math.max(0, 1 - d/.6)*900));
+    const m = $("#msg", el); m.textContent = txt; m.className = "msg" + (trouve?" ok":"");
+    $("#nb", el).textContent = essais + " essai" + (essais>1?"s":"");
+    dessiner();
+    if(trouve) setTimeout(() => fini(Math.max(0, Math.floor((essais-2)/3))), 1600);
+  });
+};
+
+JEUX.cadenas = (el, e, fini) => {
+  const n = e.code.length, v = Array(n).fill(0); let err = 0;
+  el.innerHTML = `<div class="cadenas" id="cad">${v.map((_,i)=>`<div class="roue">
+      <button type="button" data-i="${i}" data-d="1" aria-label="Chiffre ${i+1} plus">▲</button>
+      <output id="r${i}">0</output>
+      <button type="button" data-i="${i}" data-d="-1" aria-label="Chiffre ${i+1} moins">▼</button></div>`).join("")}</div>
+    <div class="msg" id="msg"></div>
+    <div class="rangee" style="justify-content:center"><button class="btn" type="button" id="ouvrir">Ouvrir</button><button class="btn fantome" type="button" id="ind">Un indice</button></div>`;
+  el.querySelectorAll(".roue button").forEach(b => b.onclick = () => { const i=+b.dataset.i; v[i]=(v[i]+ +b.dataset.d+10)%10; $("#r"+i, el).textContent=v[i]; son("tic"); });
+  $("#ind", el).onclick = () => { const m=$("#msg", el); m.className="msg"; m.textContent = e.indice; };
+  $("#ouvrir", el).onclick = () => {
+    if(v.join("") === e.code){ son("ok"); $("#msg", el).className="msg ok"; $("#msg", el).textContent="Clic ! Le cadenas s'ouvre."; setTimeout(()=>fini(err), 900); }
+    else { err++; son("ko"); const c=$("#cad", el); c.classList.remove("secoue"); void c.offsetWidth; c.classList.add("secoue");
+      $("#msg", el).className="msg ko"; $("#msg", el).textContent = err>=2 ? "Toujours fermé. " + e.indice : "Le cadenas reste fermé."; }
+  };
+};
+
+JEUX.enigme = (el, e, fini) => {
+  let err = 0;
+  el.innerHTML = `<p class="devinette">${esc(e.question)}</p>
+    <form class="saisie" id="f"><label for="rep" class="label" style="flex-basis:100%">Ta réponse</label>
+      <input id="rep" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn" type="submit">Valider</button></form>
+    <div class="msg" id="msg"></div>
+    <div class="rangee" style="justify-content:center"><button class="btn fantome" type="button" id="ind">Un indice</button><button class="btn fantome" type="button" id="sol" hidden>Voir la réponse</button></div>`;
+  const ok = e.reponses.map(norm);
+  $("#f", el).onsubmit = ev => { ev.preventDefault();
+    const r = norm($("#rep", el).value); if(!r) return;
+    const m = $("#msg", el);
+    if(ok.some(a => r === a || r.endsWith(" "+a) || r.replace(/^(le|la|les|l|un|une|c est|cest|je suis) /,"") === a)){ son("ok"); m.className="msg ok"; m.textContent="Bien trouvé ! " + e.solution; setTimeout(()=>fini(err), 1300); }
+    else { err++; son("ko"); m.className="msg ko"; m.textContent = err===1 ? "Ce n'est pas ça. Relis bien la devinette." : "Toujours pas… " + e.indice; if(err>=3) $("#sol", el).hidden = false; }
+  };
+  $("#ind", el).onclick = () => { const m=$("#msg", el); m.className="msg"; m.textContent = e.indice; };
+  $("#sol", el).onclick = () => { const m=$("#msg", el); m.className="msg"; m.textContent = "La réponse était : " + e.solution; setTimeout(()=>fini(4), 1800); };
+  setTimeout(()=>$("#rep", el).focus({preventScroll:true}), 50);
+};
+
+JEUX.ordre = (el, e, fini) => {
+  const items = e.items.map((t,i)=>({t, i}));
+  let ord; do { ord = melanger(items); } while(ord.every((o,k)=>o.i===k));
+  let sel = -1, err = 0, bons = new Set();
+  const rendu = () => {
+    el.innerHTML = `<ol class="liste-ordre">${ord.map((o,k)=>`<li data-k="${k}" class="${k===sel?"sel":""} ${bons.has(k)&&!expert()?"ok":""}" tabindex="0">
+      <span class="n">${k+1}</span><span class="contenu">${e.lunes?svgLune(o.i):""}<span>${esc(o.t)}</span></span>
+      <span class="fl"><button type="button" data-m="-1" aria-label="Monter">↑</button><button type="button" data-m="1" aria-label="Descendre">↓</button></span></li>`).join("")}</ol>
+      <div class="msg" id="msg"></div>
+      <div class="rangee" style="justify-content:center"><button class="btn" type="button" id="verif">Vérifier l'ordre</button></div>`;
+    el.querySelectorAll("li").forEach(li => {
+      const k = +li.dataset.k;
+      li.onclick = ev => {
+        const b = ev.target.closest("button");
+        if(b){ const j = k + +b.dataset.m; if(j>=0 && j<ord.length){ [ord[k],ord[j]]=[ord[j],ord[k]]; sel=-1; bons.clear(); son("tic"); rendu(); } return; }
+        if(sel<0){ sel = k; } else if(sel===k){ sel = -1; } else { [ord[k],ord[sel]]=[ord[sel],ord[k]]; sel=-1; bons.clear(); son("tic"); }
+        rendu();
+      };
+      li.onkeydown = ev => { if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); li.click(); } };
+    });
+    $("#verif", el).onclick = () => {
+      bons = new Set(ord.map((o,k)=>o.i===k?k:-1).filter(k=>k>=0));
+      if(bons.size === ord.length){ son("ok"); rendu(); $("#msg", el).className="msg ok"; $("#msg", el).textContent="Tout est dans l'ordre !"; setTimeout(()=>fini(err), 1000); return; }
+      err++; son("ko"); const n = bons.size; rendu();
+      $("#msg", el).className="msg ko"; $("#msg", el).textContent = `${n} sur ${ord.length} bien placée${n>1?"s":""}.` + (expert()?"":" Les bonnes sont entourées en vert.");
+    };
+  };
+  rendu();
+};
+
+JEUX.memory = (el, e, fini) => {
+  const paires = e.paires.slice(0, expert()?6:4);
+  const cartes = melanger(paires.flatMap((p,i)=>[{p:i,t:p[0],nom:true},{p:i,t:p[1],nom:false}]));
+  let vues = [], trouvees = 0, rates = 0, verrou = false;
+  el.innerHTML = `<div class="memo" style="--cols:${cartes.length>8?4:4}">${cartes.map((c,k)=>`<button class="carte-m" type="button" data-k="${k}" aria-label="Carte ${k+1}, face cachée">
+      <span class="in"><span class="f">✦</span><span class="d ${c.nom?"nom":""}">${esc(c.t)}</span></span></button>`).join("")}</div>
+    <div class="msg" id="msg"></div><div class="compteur" style="text-align:center" id="nb">0 paire trouvée sur ${paires.length}</div>`;
+  el.querySelectorAll(".carte-m").forEach(b => b.onclick = () => {
+    const k = +b.dataset.k;
+    if(verrou || b.classList.contains("vue") || b.classList.contains("trouvee")) return;
+    b.classList.add("vue"); b.setAttribute("aria-label", cartes[k].t); vues.push(k); son("tic");
+    if(vues.length === 2){
+      const [a, c] = vues, A = cartes[a], C = cartes[c];
+      if(A.p === C.p && A.nom !== C.nom){
+        [a,c].forEach(j => { const x = el.querySelector(`[data-k="${j}"]`); x.classList.remove("vue"); x.classList.add("trouvee"); });
+        trouvees++; vues = []; son("ok");
+        $("#msg", el).className="msg ok"; $("#msg", el).textContent = `${paires[A.p][0]} : « ${paires[A.p][1]} »`;
+        $("#nb", el).textContent = `${trouvees} paire${trouvees>1?"s":""} trouvée${trouvees>1?"s":""} sur ${paires.length}`;
+        if(trouvees === paires.length) setTimeout(()=>fini(Math.max(0, Math.floor((rates - paires.length)/2))), 1200);
+      } else {
+        rates++; verrou = true;
+        setTimeout(()=>{ [a,c].forEach(j => { const x = el.querySelector(`[data-k="${j}"]`); x.classList.remove("vue"); x.setAttribute("aria-label","Carte face cachée"); }); vues = []; verrou = false; }, 950);
+      }
+    }
+  });
+};
+
+JEUX.constellation = (el, e, fini) => {
+  const guide = !expert();
+  const rnd = graine(e.etoiles.length*13);
+  let fond = ""; for(let i=0;i<70;i++) fond += `<circle cx="${(rnd()*100).toFixed(1)}" cy="${(rnd()*100).toFixed(1)}" r="${(rnd()*.35+.1).toFixed(2)}" fill="#f3ead4" opacity="${(rnd()*.4+.1).toFixed(2)}"/>`;
+  const faits = new Set(); let sel = -1, err = 0;
+  const cle = (a,b) => a<b ? a+"-"+b : b+"-"+a;
+  const attendus = new Set(e.traits.map(([a,b])=>cle(a,b)));
+  el.innerHTML = `<svg class="toile" viewBox="-4 -4 108 108" id="sv" role="img" aria-label="Étoiles à relier">${fond}<g id="g-guide"></g><g id="g-traits"></g><g id="g-etoiles"></g></svg>
+    <div class="msg" id="msg"></div><div class="compteur" style="text-align:center" id="nb">0 trait sur ${e.traits.length}</div>`;
+  const sv = $("#sv", el);
+  if(guide) $("#g-guide", sv).innerHTML = e.traits.map(([a,b])=>{ const A=e.etoiles[a], B=e.etoiles[b];
+    return `<line x1="${A[1]}" y1="${A[2]}" x2="${B[1]}" y2="${B[2]}" stroke="rgba(243,234,212,.22)" stroke-width=".4" stroke-dasharray="1.2 1.4"/>`; }).join("");
+  const rendu = () => {
+    $("#g-traits", sv).innerHTML = [...faits].map(k=>{ const [a,b]=k.split("-").map(Number), A=e.etoiles[a], B=e.etoiles[b];
+      return `<line x1="${A[1]}" y1="${A[2]}" x2="${B[1]}" y2="${B[2]}" stroke="#c9a45a" stroke-width=".7" stroke-linecap="round"/>`; }).join("");
+    $("#g-etoiles", sv).innerHTML = e.etoiles.map(([nom,x,y],i)=>{ const lie = [...faits].some(k=>k.split("-").includes(String(i)));
+      return `<g data-i="${i}" style="cursor:pointer" role="button" aria-label="${esc(nom)}" tabindex="0">
+        <circle cx="${x}" cy="${y}" r="6" fill="transparent"/>
+        ${i===sel?`<circle cx="${x}" cy="${y}" r="3.4" fill="none" stroke="#e6c27a" stroke-width=".5"/>`:""}
+        <circle cx="${x}" cy="${y}" r="${lie||i===sel?1.9:1.5}" fill="${lie||i===sel?"#e6c27a":"#f3ead4"}"/>
+        ${guide||lie?`<text x="${x}" y="${y+5.2}" text-anchor="middle" font-size="3" fill="${lie?"#e6c27a":"#9a8f74"}">${esc(nom)}</text>`:""}</g>`; }).join("");
+    sv.querySelectorAll("[data-i]").forEach(g => { g.onclick = () => clic(+g.dataset.i); g.onkeydown = ev => { if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); clic(+g.dataset.i); } }; });
+  };
+  const clic = i => {
+    if(sel < 0 || sel === i){ sel = sel===i ? -1 : i; son("tic"); rendu(); return; }
+    const k = cle(sel, i), m = $("#msg", el);
+    if(attendus.has(k) && !faits.has(k)){ faits.add(k); son("ok"); m.className="msg ok"; m.textContent = `${e.etoiles[sel][0]} — ${e.etoiles[i][0]}`; sel = i; }
+    else if(faits.has(k)){ sel = i; m.className="msg"; m.textContent="Ce trait est déjà tracé."; }
+    else { err++; son("ko"); m.className="msg ko"; m.textContent = "Ces deux étoiles ne sont pas reliées dans cette constellation."; sel = -1; }
+    $("#nb", el).textContent = `${faits.size} trait${faits.size>1?"s":""} sur ${e.traits.length}`;
+    rendu();
+    if(faits.size === attendus.size){ sel=-1; rendu(); setTimeout(()=>fini(err), 1100); }
+  };
+  rendu();
+};
+
+JEUX.puzzle = (el, e, fini) => {
+  const n = expert() ? 4 : 3, N = n*n;
+  let p; do { p = melanger([...Array(N).keys()]); } while(p.every((v,i)=>v===i));
+  let sel = -1, coups = 0;
+  el.innerHTML = `<div class="puzzle" id="pz" style="grid-template-columns:repeat(${n},1fr)"></div>
+    <div class="rangee" style="justify-content:space-between"><span class="compteur" id="nb">0 échange</span>
+      <details><summary class="compteur" style="cursor:pointer">Voir le modèle</summary><img class="modele" src="${e.img}" alt="Modèle de l'affiche"></details></div>
+    <div class="msg" id="msg"></div>`;
+  const pz = $("#pz", el);
+  const rendu = () => {
+    pz.innerHTML = p.map((v,k)=>{ const cx = v % n, cy = Math.floor(v / n);
+      return `<button type="button" data-k="${k}" class="${k===sel?"sel":""}" aria-label="Morceau ${k+1}"
+        style="background-image:url('${e.img}');background-size:${n*100}% ${n*100}%;background-position:${cx/(n-1)*100}% ${cy/(n-1)*100}%"></button>`; }).join("");
+    pz.querySelectorAll("button").forEach(b => b.onclick = () => {
+      const k = +b.dataset.k;
+      if(sel < 0){ sel = k; son("tic"); }
+      else if(sel === k){ sel = -1; }
+      else { [p[k],p[sel]] = [p[sel],p[k]]; sel = -1; coups++; son("tic");
+        $("#nb", el).textContent = coups + " échange" + (coups>1?"s":"");
+        if(p.every((v,i)=>v===i)){ rendu(); pz.classList.add("fini"); son("ok"); $("#msg", el).className="msg ok"; $("#msg", el).textContent="L'Émeu céleste est réapparu !";
+          const lim = N - 1; setTimeout(()=>fini(coups <= lim+2 ? 0 : coups <= lim*2 ? 1 : 3), 1200); return; } }
+      rendu();
+    });
+  };
+  rendu();
+};
+
+JEUX.pont = (el, e, fini) => {
+  const BESOIN = 7, DUREE = expert() ? 30 : 42, TRAJET = expert() ? 2600 : 3800, RYTHME = expert() ? 800 : 900;
+  const PIE = `<svg viewBox="0 0 64 44" aria-hidden="true"><path d="M4 22 Q18 4 32 18 Q46 4 60 22 Q46 14 34 26 L30 26 Q18 14 4 22Z" fill="#f3ead4"/><ellipse cx="32" cy="27" rx="7" ry="5" fill="#1b1f31" stroke="#f3ead4" stroke-width="1.5"/><path d="M38 28 L50 34 L38 31Z" fill="#1b1f31" stroke="#f3ead4"/></svg>`;
+  let err = 0, timers = [], raf = 0;
+  const partie = () => {
+    let pris = 0, reste = DUREE, oiseaux = [], fin = false;
+    el.innerHTML = `<div class="rangee" style="justify-content:space-between"><span class="compteur" id="tps">${DUREE} s</span><span class="compteur" id="nb">0 / ${BESOIN} pies</span></div>
+      <div class="ciel-pont" id="cp"><div class="voie"></div>
+        <div class="pont"><span class="astre">Véga</span><span class="places">${"<i></i>".repeat(BESOIN)}</span><span class="astre">Altaïr</span></div></div>
+      <div class="msg" id="msg"></div>`;
+    const cp = $("#cp", el);
+    const lancer = () => {
+      if(fin) return;
+      const b = document.createElement("button"); b.type="button"; b.className="pie"; b.innerHTML = PIE; b.setAttribute("aria-label","Attraper la pie");
+      const sens = Math.random()<.5 ? 1 : -1, haut = 8 + Math.random()*58;
+      const o = {b, t0: performance.now(), sens, haut, duree: TRAJET*(.85+Math.random()*.3)};
+      b.style.top = haut + "%"; if(sens<0) b.querySelector("svg").style.transform = "scaleX(-1)";
+      b.onpointerdown = ev => { ev.preventDefault(); if(fin) return; b.remove(); oiseaux = oiseaux.filter(x=>x!==o);
+        pris++; son(500 + pris*90);
+        const pl = cp.querySelectorAll(".places i")[pris-1]; if(pl){ pl.classList.add("p"); pl.innerHTML = PIE; }
+        $("#nb", el).textContent = `${pris} / ${BESOIN} pies`;
+        if(pris >= BESOIN) gagner(); };
+      cp.appendChild(b); oiseaux.push(o);
+    };
+    const boucle = now => {
+      const W = cp.clientWidth;
+      oiseaux.forEach(o => { const k = (now - o.t0) / o.duree, xx = o.sens>0 ? -70 + k*(W+140) : W + 70 - k*(W+140);
+        o.b.style.transform = `translate(${xx}px, ${Math.sin(k*12)*8}px)`; if(k>1){ o.b.remove(); o.mort = true; } });
+      oiseaux = oiseaux.filter(o=>!o.mort);
+      if(!fin) raf = requestAnimationFrame(boucle);
+    };
+    const arreter = () => { fin = true; timers.forEach(clearInterval); timers = []; cancelAnimationFrame(raf); };
+    const gagner = () => { arreter(); oiseaux.forEach(o=>o.b.remove()); son("ok"); const m=$("#msg", el); m.className="msg ok"; m.textContent="Le pont est construit : Zhinü et Niulang se retrouvent !"; setTimeout(()=>fini(err), 1500); };
+    timers.push(setInterval(lancer, RYTHME));
+    timers.push(setInterval(() => { reste--; $("#tps", el).textContent = reste + " s";
+      if(reste <= 0 && !fin){ arreter(); err += 2; son("ko"); oiseaux.forEach(o=>o.b.remove());
+        const m=$("#msg", el); m.className="msg ko"; m.innerHTML = `Le temps est écoulé, il manque ${BESOIN-pris} pie${BESOIN-pris>1?"s":""}. <button class="btn" type="button" id="rej" style="margin-top:8px">Réessayer</button>`;
+        $("#rej", el).onclick = partie; } }, 1000));
+    lancer(); raf = requestAnimationFrame(boucle);
+    nettoyage = arreter;
+  };
+  el.innerHTML = `<div class="rangee" style="justify-content:center"><button class="btn" type="button" id="go">Lancer les pies</button></div>`;
+  $("#go", el).onclick = partie;
+};
+
+JEUX.tambour = (el, e, fini) => {
+  const VITESSE = expert() ? .2 : .13, COUP = expert() ? .045 : .06;
+  let err = 0, raf = 0;
+  el.innerHTML = `<canvas class="toile" id="cv" style="max-width:360px" aria-label="Le soleil et le loup Sköll"></canvas>
+    <div class="jauge" aria-hidden="true"><i id="jg"></i></div>
+    <div class="msg" id="msg">Prêt ? Le loup arrive…</div>
+    <button class="btn frappe" type="button" id="fr">Commencer</button>`;
+  const cv = $("#cv", el), x = cv.getContext("2d"), N = 360; cv.width = N; cv.height = N;
+  const rnd = graine(9), fond = Array.from({length:60}, () => [rnd()*N, rnd()*N, rnd()+.2]);
+  let ombre = .35, enCours = false, dernier = 0, secousse = 0;
+  const dessiner = () => {
+    const nuit = ombre;
+    x.fillStyle = `rgb(${Math.round(40-30*nuit)},${Math.round(60-50*nuit)},${Math.round(110-90*nuit)})`; x.fillRect(0,0,N,N);
+    fond.forEach(([px,py,r]) => { x.fillStyle=`rgba(243,234,212,${nuit*.8})`; x.beginPath(); x.arc(px,py,r,0,7); x.fill(); });
+    const c = N/2, R = 90, dx = (1-ombre)*R*2.1 + (Math.random()-.5)*secousse;
+    const g = x.createRadialGradient(c,c,R*.6,c,c,R*1.8); g.addColorStop(0,`rgba(255,220,140,${.6*(1-nuit)+.2})`); g.addColorStop(1,"rgba(255,200,120,0)");
+    x.fillStyle=g; x.beginPath(); x.arc(c,c,R*1.8,0,7); x.fill();
+    x.fillStyle="#ffd77a"; x.beginPath(); x.arc(c,c,R,0,7); x.fill();
+    x.fillStyle="#0b0a12"; x.beginPath(); x.arc(c+dx,c-dx*.15,R*1.02,0,7); x.fill();
+    x.fillStyle="#ff5a3c"; [[-22,-14],[10,-14]].forEach(([ox,oy])=>{ x.beginPath(); x.arc(c+dx+ox+6,c-dx*.15+oy,4.5,0,7); x.fill(); });
+    x.fillStyle="rgba(243,234,212,.85)"; x.font="16px Poppins, sans-serif"; x.textAlign="center"; x.fillText("Sköll", c+dx, c-dx*.15+R*.55);
+    $("#jg", el).style.width = Math.round(ombre*100) + "%";
+    secousse *= .85;
+  };
+  const boucle = t => {
+    const dt = dernier ? (t-dernier)/1000 : 0; dernier = t;
+    ombre = Math.min(1, ombre + VITESSE*dt); dessiner();
+    if(ombre >= 1){ enCours = false; err += 2; son("ko"); const m=$("#msg", el); m.className="msg ko"; m.textContent="Sköll a avalé le soleil ! Reprends ton souffle et recommence.";
+      $("#fr", el).textContent = "Recommencer"; return; }
+    if(ombre <= 0){ enCours = false; son("ok"); ombre = 0; dessiner(); const m=$("#msg", el); m.className="msg ok"; m.textContent="Sköll lâche prise : la lumière revient !";
+      $("#fr", el).disabled = true; setTimeout(()=>fini(err), 1400); return; }
+    raf = requestAnimationFrame(boucle);
+  };
+  const frapper = ev => {
+    if(ev) ev.preventDefault();
+    if(!enCours){ if($("#fr", el).disabled) return; enCours = true; ombre = .35; dernier = 0; $("#fr", el).textContent = "Frappe le bouclier !";
+      const m=$("#msg", el); m.className="msg"; m.textContent="Frappe, frappe, frappe !"; raf = requestAnimationFrame(boucle); return; }
+    ombre = Math.max(0, ombre - COUP); secousse = 14; son("boum");
+  };
+  $("#fr", el).addEventListener("pointerdown", frapper);
+  $("#fr", el).addEventListener("keydown", ev => { if(ev.key===" "||ev.key==="Enter") frapper(ev); });
+  $("#fr", el).addEventListener("click", ev => ev.preventDefault());
+  dessiner();
+  nettoyage = () => cancelAnimationFrame(raf);
+};
+
+/* =====================================================================
+   ÉNIGME FINALE
+   ===================================================================== */
+function vueFinale(){
+  viderVue();
+  const reussis = CONTES.filter(conteFini);
+  if(reussis.length < 10){
+    APP.innerHTML = `<section class="hero"><div class="label">L'énigme finale</div><h1 style="font-size:clamp(36px,7vw,56px)">Le mot des étoiles</h1>
+      <p>Chaque conte réussi te donne une lettre. Avec les dix lettres, tu pourras former le mot secret de la Nuit Étoilée.</p></section>
+      <div class="lettres" style="justify-content:center;margin:20px 0">${CONTES.map(c=>`<span class="${conteFini(c)?"ok":""}" style="width:40px;height:50px;font-size:24px">${conteFini(c)?c.lettre:"?"}</span>`).join("")}</div>
+      <p style="text-align:center">Il te reste <b style="color:var(--or-vif)">${10-reussis.length}</b> conte${10-reussis.length>1?"s":""} à réussir :</p>
+      <div class="rangee" style="justify-content:center">${CONTES.filter(c=>!conteFini(c)).map(c=>`<a class="btn fantome" href="#conte-${c.id}">${c.num} · ${esc(c.titre)}</a>`).join("")}</div>`;
+    return;
+  }
+  if(S.finale){ diplome(); return; }
+  const reserve = CONTES.map((c,i)=>({l:c.lettre, i})), place = Array(10).fill(null);
+  let err = 0;
+  const rendu = () => {
+    APP.innerHTML = `<section class="hero"><div class="label">L'énigme finale</div><h1 style="font-size:clamp(36px,7vw,56px)">Le mot des étoiles</h1>
+      <p>Tu as les dix lettres ! Remets-les dans le bon ordre pour former le nom de la science qui étudie les étoiles, les planètes et tout ce que tu as regardé ce soir.</p></section>
+      <div style="display:grid;gap:18px;margin-top:10px">
+        <div class="emplacements" aria-label="Ton mot">${place.map((p,k)=>`<button type="button" data-p="${k}" class="${p!==null?"plein":""}" aria-label="Case ${k+1}${p!==null?" : "+reserve[p].l:""}">${p!==null?reserve[p].l:""}</button>`).join("")}</div>
+        <div class="reserve" aria-label="Lettres disponibles">${reserve.map((r,k)=>`<button type="button" data-r="${k}" ${place.includes(k)?"disabled":""}>${r.l}</button>`).join("")}</div>
+        <div class="msg" id="msg"></div>
+        <div class="rangee" style="justify-content:center"><button class="btn fantome" type="button" id="vider">Tout effacer</button><button class="btn fantome" type="button" id="ind">Un indice</button></div>
+      </div>`;
+    APP.querySelectorAll("[data-r]").forEach(b => b.onclick = () => { const k = place.indexOf(null); if(k<0) return; place[k] = +b.dataset.r; son("tic"); verifier(); });
+    APP.querySelectorAll("[data-p]").forEach(b => b.onclick = () => { place[+b.dataset.p] = null; rendu(); });
+    $("#vider").onclick = () => { place.fill(null); rendu(); };
+    $("#ind").onclick = () => { const m=$("#msg"); m.className="msg"; m.textContent = "Le mot commence par « ASTRO », comme astronaute."; };
+  };
+  const verifier = () => {
+    rendu();
+    if(place.includes(null)) return;
+    const mot = place.map(p=>reserve[p].l).join("");
+    if(mot === MOT_FINAL){ son("victoire"); S.finale = {date: new Date().toISOString(), mode:S.mode, etoiles: totalEtoiles(), err}; sauver(); setTimeout(diplome, 600); }
+    else { err++; son("ko"); const m=$("#msg"); m.className="msg ko"; m.textContent = "Ce n'est pas encore le bon mot. Touche une case pour retirer sa lettre."; }
+  };
+  rendu();
+}
+function diplome(){
+  viderVue();
+  const f = S.finale, d = new Date(f.date);
+  let h = 7; for(const ch of f.date + f.etoiles) h = (h*31 + ch.charCodeAt(0)) % 9000;
+  const code = "NE-" + (1000 + h);
+  APP.innerHTML = `<section style="margin-top:20px" class="diplome">
+    <div class="label">Constellation complète</div>
+    <div class="sep" aria-hidden="true">✦ ⋆ ✧ ⋆ ✦</div>
+    <div class="mot">${MOT_FINAL}</div>
+    <p style="max-width:52ch;margin:0">Tu as écouté les dix contes, relevé tous les défis et retrouvé le mot des étoiles. Sous le même ciel, tu es désormais gardien·ne des histoires de la Nuit Étoilée.</p>
+    <div style="font-size:30px;color:var(--or-vif)">${totalEtoiles()} / ${maxEtoiles()} ★</div>
+    <div class="sourdine" style="font-family:var(--f-label);font-size:14px">Mode ${f.mode==="astronome"?"Astronome":"Petite étoile"} · ${d.toLocaleDateString("fr-FR")} à ${d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</div>
+    <div class="code">${code}</div>
+    <p class="sourdine" style="margin:0;font-family:var(--f-label);font-size:14px">Montre cet écran à l'accueil de la Nuit Étoilée.</p>
+  </section>
+  <div class="rangee" style="justify-content:center;margin-top:20px"><a class="btn fantome" href="#accueil">Revoir la carte du ciel</a></div>`;
+}
+
+/* =====================================================================
+   NAVIGATION, BARRE, FOND ÉTOILÉ
+   ===================================================================== */
+function majBarre(){
+  $("#b-mode-nom").textContent = expert() ? "Astronome" : "Petite étoile";
+  $("#b-son-etat").textContent = S.son ? "oui" : "non"; $("#b-son").setAttribute("aria-pressed", S.son);
+}
+$("#b-mode").onclick = () => { S.mode = expert() ? "etoile" : "astronome"; sauver(); majBarre(); route(); };
+$("#b-son").onclick = () => { S.son = !S.son; sauver(); majBarre(); };
+
+function route(){
+  if(!SCENE.hidden) fermerScene();
+  document.querySelectorAll("audio").forEach(a => a.pause());
+  const h = location.hash.replace("#","");
+  const m = h.match(/^conte-(\d+)$/);
+  if(m){ const c = CONTES.find(c=>c.id===+m[1]); if(c){ vueConte(c); window.scrollTo(0,0); return; } }
+  if(h === "finale"){ vueFinale(); window.scrollTo(0,0); return; }
+  vueAccueil();
+  if(h === "" || h === "accueil") window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+
+(function cielFond(){
+  const cv = $("#ciel-fond"), x = cv.getContext("2d");
+  let et = [];
+  const taille = () => { const r = Math.min(2, window.devicePixelRatio||1); cv.width = innerWidth*r; cv.height = innerHeight*r;
+    const rnd = graine(5); et = Array.from({length: Math.round(innerWidth*innerHeight/7000)}, () => ({x:rnd()*cv.width, y:rnd()*cv.height, r:(rnd()*1.1+.3)*r, p:rnd()*6, v:rnd()*.8+.3})); };
+  const calme = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const peindre = t => { x.clearRect(0,0,cv.width,cv.height);
+    et.forEach(s => { const a = calme ? .5 : .35 + .35*Math.sin(t/1000*s.v + s.p); x.fillStyle = `rgba(230,210,160,${a})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    if(!calme) requestAnimationFrame(peindre); };
+  addEventListener("resize", taille); taille(); requestAnimationFrame(peindre);
+})();
+
+majBarre();
+route();
+</script>

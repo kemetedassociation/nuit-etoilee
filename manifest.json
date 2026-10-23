@@ -1,0 +1,9 @@
+{
+  "name": "Nuit Étoilée — Contes du monde",
+  "short_name": "Nuit Étoilée",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0c13",
+  "theme_color": "#0a0c13",
+  "icons": [{"src": "img/icone.png", "sizes": "512x512", "type": "image/png"}]
+}
